@@ -1,14 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import useAuth from "../hooks/useAuth";
 
-// import LoginPage from "../pages/auth/LoginPage";
-// import RegisterPage from "../pages/auth/RegisterPage";
-// import BooksPage from "../pages/books/BooksPage";
-// import BookDetailPage from "../pages/books/BookDetailPage";
-// import MyLoansPage from "../pages/loans/MyLoansPage";
-// import MyFinesPage from "../pages/fines/MyFinesPage";
-// import MyReservationsPage from "../pages/reservations/MyReservationsPage";
-// import AdminPage from "../pages/admin/AdminPage";
+import LoginPage from "../pages/auth/LoginPage";
+import RegisterPage from "../pages/auth/RegisterPage";
+import BooksPage from "../pages/books/BooksPage";
+import BookDetailPage from "../pages/books/BookDetailPage";
+import MyLoansPage from "../pages/loans/MyLoansPage";
+import MyFinesPage from "../pages/fines/MyFinesPage";
+import MyReservationsPage from "../pages/reservations/MyReservationsPage";
+import AdminPage from "../pages/admin/AdminPage";
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
