@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import reservationService from "../../api/reservationService";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 const statusLabel = {
   PENDING: { text: "En cola", color: "bg-yellow-100 text-yellow-700" },
@@ -13,10 +14,9 @@ const MyReservationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [actionError, setActionError] = useState(null);
   const [actionSuccess, setActionSuccess] = useState(null);
+  const [modal, setModal] = useState({ open: false, message: "", onConfirm: null });
 
-  useEffect(() => {
-    fetchReservations();
-  }, []);
+  useEffect(() => { fetchReservations(); }, []);
 
   const fetchReservations = async () => {
     try {
@@ -29,16 +29,23 @@ const MyReservationsPage = () => {
     }
   };
 
-  const handleCancel = async (reservationId) => {
-    setActionError(null);
-    setActionSuccess(null);
-    try {
-      const updated = await reservationService.cancel(reservationId);
-      setReservations(reservations.map((r) => (r.id === reservationId ? updated : r)));
-      setActionSuccess("Reserva cancelada correctamente.");
-    } catch (err) {
-      setActionError(err.response?.data?.message || "Error al cancelar la reserva.");
-    }
+  const confirm = (message, onConfirm) => {
+    setModal({ open: true, message, onConfirm });
+  };
+
+  const handleCancel = (reservationId) => {
+    confirm("¿Cancelar esta reserva?", async () => {
+      setModal({ open: false });
+      setActionError(null);
+      setActionSuccess(null);
+      try {
+        const updated = await reservationService.cancel(reservationId);
+        setReservations(reservations.map((r) => (r.id === reservationId ? updated : r)));
+        setActionSuccess("Reserva cancelada correctamente.");
+      } catch (err) {
+        setActionError(err.response?.data?.message || "Error al cancelar la reserva.");
+      }
+    });
   };
 
   if (loading) {
@@ -69,10 +76,7 @@ const MyReservationsPage = () => {
       ) : (
         <div className="space-y-4">
           {reservations.map((reservation) => (
-            <div
-              key={reservation.id}
-              className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-            >
+            <div key={reservation.id} className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h3 className="font-semibold text-gray-900">{reservation.bookTitle}</h3>
                 <div className="flex items-center gap-3 mt-1 flex-wrap">
@@ -106,6 +110,14 @@ const MyReservationsPage = () => {
             </div>
           ))}
         </div>
+      )}
+
+      {modal.open && (
+        <ConfirmModal
+          message={modal.message}
+          onConfirm={modal.onConfirm}
+          onCancel={() => setModal({ open: false })}
+        />
       )}
     </div>
   );

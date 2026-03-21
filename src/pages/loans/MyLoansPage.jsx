@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import loanService from "../../api/loanService";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 const statusLabel = {
   ISSUED: { text: "Activo", color: "bg-green-100 text-green-700" },
@@ -12,10 +13,9 @@ const MyLoansPage = () => {
   const [loading, setLoading] = useState(true);
   const [actionError, setActionError] = useState(null);
   const [actionSuccess, setActionSuccess] = useState(null);
+  const [modal, setModal] = useState({ open: false, message: "", onConfirm: null });
 
-  useEffect(() => {
-    fetchLoans();
-  }, []);
+  useEffect(() => { fetchLoans(); }, []);
 
   const fetchLoans = async () => {
     try {
@@ -28,28 +28,38 @@ const MyLoansPage = () => {
     }
   };
 
-  const handleExtend = async (loanId) => {
-    setActionError(null);
-    setActionSuccess(null);
-    try {
-      const updated = await loanService.extend(loanId);
-      setLoans(loans.map((l) => (l.id === loanId ? updated : l)));
-      setActionSuccess("Préstamo prorrogado correctamente.");
-    } catch (err) {
-      setActionError(err.response?.data?.message || "Error al prorrogar.");
-    }
+  const confirm = (message, onConfirm) => {
+    setModal({ open: true, message, onConfirm });
   };
 
-  const handleReturn = async (loanId) => {
-    setActionError(null);
-    setActionSuccess(null);
-    try {
-      const updated = await loanService.returnBook(loanId);
-      setLoans(loans.map((l) => (l.id === loanId ? updated : l)));
-      setActionSuccess("Libro devuelto correctamente.");
-    } catch (err) {
-      setActionError(err.response?.data?.message || "Error al devolver.");
-    }
+  const handleExtend = (loanId) => {
+    confirm("¿Prorrogar este préstamo 10 días más?", async () => {
+      setModal({ open: false });
+      setActionError(null);
+      setActionSuccess(null);
+      try {
+        const updated = await loanService.extend(loanId);
+        setLoans(loans.map((l) => (l.id === loanId ? updated : l)));
+        setActionSuccess("Préstamo prorrogado correctamente.");
+      } catch (err) {
+        setActionError(err.response?.data?.message || "Error al prorrogar.");
+      }
+    });
+  };
+
+  const handleReturn = (loanId) => {
+    confirm("¿Devolver este libro?", async () => {
+      setModal({ open: false });
+      setActionError(null);
+      setActionSuccess(null);
+      try {
+        const updated = await loanService.returnBook(loanId);
+        setLoans(loans.map((l) => (l.id === loanId ? updated : l)));
+        setActionSuccess("Libro devuelto correctamente.");
+      } catch (err) {
+        setActionError(err.response?.data?.message || "Error al devolver.");
+      }
+    });
   };
 
   if (loading) {
@@ -80,13 +90,10 @@ const MyLoansPage = () => {
       ) : (
         <div className="space-y-4">
           {loans.map((loan) => (
-            <div
-              key={loan.id}
-              className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-            >
+            <div key={loan.id} className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h3 className="font-semibold text-gray-900">{loan.bookTitle}</h3>
-                <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-center gap-3 mt-1 flex-wrap">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusLabel[loan.status]?.color}`}>
                     {statusLabel[loan.status]?.text}
                   </span>
@@ -104,7 +111,6 @@ const MyLoansPage = () => {
                 </p>
               </div>
 
-              {/* Acciones */}
               {loan.status !== "RETURNED" && (
                 <div className="flex gap-2">
                   {loan.status === "ISSUED" && loan.extensionsUsed < 3 && (
@@ -126,6 +132,14 @@ const MyLoansPage = () => {
             </div>
           ))}
         </div>
+      )}
+
+      {modal.open && (
+        <ConfirmModal
+          message={modal.message}
+          onConfirm={modal.onConfirm}
+          onCancel={() => setModal({ open: false })}
+        />
       )}
     </div>
   );
