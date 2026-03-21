@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import bookService from "../../api/bookService";
+import loanService from "../../api/loanService";
 import { getBookCover } from "../../utils/bookCover";
 import useAuth from "../../hooks/useAuth";
 
@@ -13,6 +14,10 @@ const BookDetailPage = () => {
   const [cover, setCover] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [loanLoading, setLoanLoading] = useState(false);
+  const [loanSuccess, setLoanSuccess] = useState(null);
+  const [loanError, setLoanError] = useState(null);
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -34,6 +39,25 @@ const BookDetailPage = () => {
     };
     fetchBook();
   }, [id]);
+
+  const handleLoan = async () => {
+    setLoanLoading(true);
+    setLoanError(null);
+    setLoanSuccess(null);
+    try {
+      await loanService.create(book.id);
+      setLoanSuccess("Préstamo solicitado correctamente.");
+      setBook({ ...book, availableCopies: book.availableCopies - 1 });
+    } catch (err) {
+      setLoanError(err.response?.data?.message || "Error al solicitar el préstamo.");
+    } finally {
+      setLoanLoading(false);
+    }
+  };
+
+  const handleReservation = async () => {
+    navigate("/my-reservations");
+  };
 
   if (loading) {
     return (
@@ -120,13 +144,28 @@ const BookDetailPage = () => {
               <p className="text-gray-400 font-medium">Disponibilidad</p>
               {book.availableCopies > 0 ? (
                 <p className="text-green-600 font-medium">
-                  {book.availableCopies} {book.availableCopies === 1 ? "copia disponible" : "copias disponibles"}
+                  {book.availableCopies}{" "}
+                  {book.availableCopies === 1
+                    ? "copia disponible"
+                    : "copias disponibles"}
                 </p>
               ) : (
                 <p className="text-red-500 font-medium">No disponible</p>
               )}
             </div>
           </div>
+
+          {/* Mensajes */}
+          {loanSuccess && (
+            <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 mb-4 text-sm">
+              {loanSuccess}
+            </div>
+          )}
+          {loanError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">
+              {loanError}
+            </div>
+          )}
 
           {/* Acciones */}
           {!isAuthenticated() ? (
@@ -140,11 +179,18 @@ const BookDetailPage = () => {
               para solicitar un préstamo o reserva.
             </p>
           ) : book.availableCopies > 0 ? (
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors">
-              Solicitar préstamo
+            <button
+              onClick={handleLoan}
+              disabled={loanLoading || loanSuccess}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
+            >
+              {loanLoading ? "Solicitando..." : "Solicitar préstamo"}
             </button>
           ) : (
-            <button className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors">
+            <button
+              onClick={handleReservation}
+              className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
+            >
               Reservar
             </button>
           )}
