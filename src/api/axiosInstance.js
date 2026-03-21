@@ -7,7 +7,6 @@ const axiosInstance = axios.create({
   },
 });
 
-// Interceptor de petición — añade el token JWT automáticamente
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -19,7 +18,6 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor de respuesta — redirige al login si el token expira
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {

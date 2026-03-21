@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import fineService from "../../api/fineService";
+import { SkeletonRow } from "../../components/common/Skeleton";
 
 const MyFinesPage = () => {
   const [fines, setFines] = useState([]);
@@ -21,8 +22,13 @@ const MyFinesPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Cargando multas...</p>
+      <div className="max-w-4xl mx-auto">
+        <div className="h-8 bg-gray-200 rounded w-48 mb-6 animate-pulse" />
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonRow key={i} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -48,9 +54,8 @@ const MyFinesPage = () => {
             return (
               <div
                 key={fine.id}
-                className={`bg-white rounded-xl border p-5 ${
-                  isActive ? "border-red-200" : "border-gray-200"
-                }`}
+                className={`bg-white rounded-xl border p-5 ${isActive ? "border-red-200" : "border-gray-200"
+                  }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>

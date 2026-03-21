@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bookService from "../../api/bookService";
 import { getBookCover } from "../../utils/bookCover";
+import { SkeletonCard } from "../../components/common/Skeleton";
 
 // ── Componente portada ──────────────────────────────────────────────────────
 const BookCover = ({ isbn, title, coverUrl }) => {
@@ -70,8 +71,13 @@ const BooksPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Cargando catálogo...</p>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Catálogo de libros</h1>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
       </div>
     );
   }

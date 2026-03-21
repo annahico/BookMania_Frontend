@@ -1,6 +1,8 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import loanService from "../../api/loanService";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import useToast from "../../hooks/useToast";
 
 const statusLabel = {
   ISSUED: { text: "Activo", color: "bg-green-100 text-green-700" },
@@ -11,9 +13,8 @@ const statusLabel = {
 const MyLoansPage = () => {
   const [loans, setLoans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionError, setActionError] = useState(null);
-  const [actionSuccess, setActionSuccess] = useState(null);
   const [modal, setModal] = useState({ open: false, message: "", onConfirm: null });
+  const { showToast } = useToast();
 
   useEffect(() => { fetchLoans(); }, []);
 
@@ -22,7 +23,7 @@ const MyLoansPage = () => {
       const data = await loanService.getMyLoans();
       setLoans(data);
     } catch (err) {
-      console.error("Error cargando préstamos:", err);
+      showToast("Error cargando préstamos", "error");
     } finally {
       setLoading(false);
     }
@@ -35,14 +36,12 @@ const MyLoansPage = () => {
   const handleExtend = (loanId) => {
     confirm("¿Prorrogar este préstamo 10 días más?", async () => {
       setModal({ open: false });
-      setActionError(null);
-      setActionSuccess(null);
       try {
         const updated = await loanService.extend(loanId);
         setLoans(loans.map((l) => (l.id === loanId ? updated : l)));
-        setActionSuccess("Préstamo prorrogado correctamente.");
+        showToast("Préstamo prorrogado correctamente", "success");
       } catch (err) {
-        setActionError(err.response?.data?.message || "Error al prorrogar.");
+        showToast(err.response?.data?.message || "Error al prorrogar", "error");
       }
     });
   };
@@ -50,14 +49,12 @@ const MyLoansPage = () => {
   const handleReturn = (loanId) => {
     confirm("¿Devolver este libro?", async () => {
       setModal({ open: false });
-      setActionError(null);
-      setActionSuccess(null);
       try {
         const updated = await loanService.returnBook(loanId);
         setLoans(loans.map((l) => (l.id === loanId ? updated : l)));
-        setActionSuccess("Libro devuelto correctamente.");
+        showToast("Libro devuelto correctamente", "success");
       } catch (err) {
-        setActionError(err.response?.data?.message || "Error al devolver.");
+        showToast(err.response?.data?.message || "Error al devolver", "error");
       }
     });
   };
@@ -73,17 +70,6 @@ const MyLoansPage = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Mis préstamos</h1>
-
-      {actionSuccess && (
-        <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 mb-6 text-sm">
-          {actionSuccess}
-        </div>
-      )}
-      {actionError && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-6 text-sm">
-          {actionError}
-        </div>
-      )}
 
       {loans.length === 0 ? (
         <p className="text-gray-500 text-center py-12">No tienes préstamos.</p>
