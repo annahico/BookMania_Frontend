@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import bookService from "../../api/bookService";
 import loanService from "../../api/loanService";
+import reservationService from "../../api/reservationService";
 import { getBookCover } from "../../utils/bookCover";
 import useAuth from "../../hooks/useAuth";
 
@@ -18,6 +19,10 @@ const BookDetailPage = () => {
   const [loanLoading, setLoanLoading] = useState(false);
   const [loanSuccess, setLoanSuccess] = useState(null);
   const [loanError, setLoanError] = useState(null);
+
+  const [reservationLoading, setReservationLoading] = useState(false);
+  const [reservationSuccess, setReservationSuccess] = useState(null);
+  const [reservationError, setReservationError] = useState(null);
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -56,7 +61,21 @@ const BookDetailPage = () => {
   };
 
   const handleReservation = async () => {
-    navigate("/my-reservations");
+    setReservationLoading(true);
+    setReservationError(null);
+    setReservationSuccess(null);
+    try {
+      await reservationService.create(book.id);
+      setReservationSuccess(
+        "Reserva realizada correctamente. Te avisaremos cuando esté disponible."
+      );
+    } catch (err) {
+      setReservationError(
+        err.response?.data?.message || "Error al hacer la reserva."
+      );
+    } finally {
+      setReservationLoading(false);
+    }
   };
 
   if (loading) {
@@ -155,18 +174,6 @@ const BookDetailPage = () => {
             </div>
           </div>
 
-          {/* Mensajes */}
-          {loanSuccess && (
-            <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 mb-4 text-sm">
-              {loanSuccess}
-            </div>
-          )}
-          {loanError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">
-              {loanError}
-            </div>
-          )}
-
           {/* Acciones */}
           {!isAuthenticated() ? (
             <p className="text-sm text-gray-500">
@@ -179,20 +186,45 @@ const BookDetailPage = () => {
               para solicitar un préstamo o reserva.
             </p>
           ) : book.availableCopies > 0 ? (
-            <button
-              onClick={handleLoan}
-              disabled={loanLoading || loanSuccess}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
-            >
-              {loanLoading ? "Solicitando..." : "Solicitar préstamo"}
-            </button>
+            <div>
+              {loanSuccess && (
+                <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 mb-4 text-sm">
+                  {loanSuccess}
+                </div>
+              )}
+              {loanError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">
+                  {loanError}
+                </div>
+              )}
+              <button
+                onClick={handleLoan}
+                disabled={loanLoading || !!loanSuccess}
+                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
+              >
+                {loanLoading ? "Solicitando..." : "Solicitar préstamo"}
+              </button>
+            </div>
           ) : (
-            <button
-              onClick={handleReservation}
-              className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
-            >
-              Reservar
-            </button>
+            <div>
+              {reservationSuccess && (
+                <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 mb-4 text-sm">
+                  {reservationSuccess}
+                </div>
+              )}
+              {reservationError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">
+                  {reservationError}
+                </div>
+              )}
+              <button
+                onClick={handleReservation}
+                disabled={reservationLoading || !!reservationSuccess}
+                className="bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
+              >
+                {reservationLoading ? "Reservando..." : "Reservar"}
+              </button>
+            </div>
           )}
         </div>
       </div>
