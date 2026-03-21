@@ -1,6 +1,8 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import reservationService from "../../api/reservationService";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import useToast from "../../hooks/useToast";
 
 const statusLabel = {
   PENDING: { text: "En cola", color: "bg-yellow-100 text-yellow-700" },
@@ -12,9 +14,8 @@ const statusLabel = {
 const MyReservationsPage = () => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionError, setActionError] = useState(null);
-  const [actionSuccess, setActionSuccess] = useState(null);
   const [modal, setModal] = useState({ open: false, message: "", onConfirm: null });
+  const { showToast } = useToast();
 
   useEffect(() => { fetchReservations(); }, []);
 
@@ -23,7 +24,7 @@ const MyReservationsPage = () => {
       const data = await reservationService.getMyReservations();
       setReservations(data);
     } catch (err) {
-      console.error("Error cargando reservas:", err);
+      showToast("Error cargando reservas", "error");
     } finally {
       setLoading(false);
     }
@@ -36,14 +37,12 @@ const MyReservationsPage = () => {
   const handleCancel = (reservationId) => {
     confirm("¿Cancelar esta reserva?", async () => {
       setModal({ open: false });
-      setActionError(null);
-      setActionSuccess(null);
       try {
         const updated = await reservationService.cancel(reservationId);
         setReservations(reservations.map((r) => (r.id === reservationId ? updated : r)));
-        setActionSuccess("Reserva cancelada correctamente.");
+        showToast("Reserva cancelada correctamente", "success");
       } catch (err) {
-        setActionError(err.response?.data?.message || "Error al cancelar la reserva.");
+        showToast(err.response?.data?.message || "Error al cancelar la reserva", "error");
       }
     });
   };
@@ -59,17 +58,6 @@ const MyReservationsPage = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Mis reservas</h1>
-
-      {actionSuccess && (
-        <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 mb-6 text-sm">
-          {actionSuccess}
-        </div>
-      )}
-      {actionError && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-6 text-sm">
-          {actionError}
-        </div>
-      )}
 
       {reservations.length === 0 ? (
         <p className="text-gray-500 text-center py-12">No tienes reservas.</p>

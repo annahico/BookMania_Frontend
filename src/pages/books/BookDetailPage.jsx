@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import bookService from "../../api/bookService";
@@ -5,31 +6,28 @@ import loanService from "../../api/loanService";
 import reservationService from "../../api/reservationService";
 import { getBookCover } from "../../utils/bookCover";
 import useAuth from "../../hooks/useAuth";
+import useToast from "../../hooks/useToast";
 
 const BookDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { showToast } = useToast();
 
   const [book, setBook] = useState(null);
   const [cover, setCover] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [loanLoading, setLoanLoading] = useState(false);
-  const [loanSuccess, setLoanSuccess] = useState(null);
-  const [loanError, setLoanError] = useState(null);
-
+  const [loanDone, setLoanDone] = useState(false);
   const [reservationLoading, setReservationLoading] = useState(false);
-  const [reservationSuccess, setReservationSuccess] = useState(null);
-  const [reservationError, setReservationError] = useState(null);
+  const [reservationDone, setReservationDone] = useState(false);
 
   useEffect(() => {
     const fetchBook = async () => {
       try {
         const data = await bookService.getById(id);
         setBook(data);
-
         if (!data.coverUrl || data.coverUrl.includes("ejemplo.com")) {
           const url = await getBookCover(data.isbn);
           setCover(url);
@@ -47,14 +45,13 @@ const BookDetailPage = () => {
 
   const handleLoan = async () => {
     setLoanLoading(true);
-    setLoanError(null);
-    setLoanSuccess(null);
     try {
       await loanService.create(book.id);
-      setLoanSuccess("Préstamo solicitado correctamente.");
+      showToast("Préstamo solicitado correctamente", "success");
       setBook({ ...book, availableCopies: book.availableCopies - 1 });
+      setLoanDone(true);
     } catch (err) {
-      setLoanError(err.response?.data?.message || "Error al solicitar el préstamo.");
+      showToast(err.response?.data?.message || "Error al solicitar el préstamo", "error");
     } finally {
       setLoanLoading(false);
     }
@@ -62,17 +59,12 @@ const BookDetailPage = () => {
 
   const handleReservation = async () => {
     setReservationLoading(true);
-    setReservationError(null);
-    setReservationSuccess(null);
     try {
       await reservationService.create(book.id);
-      setReservationSuccess(
-        "Reserva realizada correctamente. Te avisaremos cuando esté disponible."
-      );
+      showToast("Reserva realizada correctamente", "success");
+      setReservationDone(true);
     } catch (err) {
-      setReservationError(
-        err.response?.data?.message || "Error al hacer la reserva."
-      );
+      showToast(err.response?.data?.message || "Error al hacer la reserva", "error");
     } finally {
       setReservationLoading(false);
     }
@@ -96,8 +88,6 @@ const BookDetailPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-
-      {/* Botón volver */}
       <button
         onClick={() => navigate(-1)}
         className="text-sm text-gray-500 hover:text-blue-600 mb-6 flex items-center gap-1"
@@ -106,16 +96,11 @@ const BookDetailPage = () => {
       </button>
 
       <div className="flex flex-col md:flex-row gap-10">
-
         {/* Portada */}
         <div className="w-full md:w-56 flex-shrink-0">
           <div className="bg-gray-100 rounded-xl overflow-hidden aspect-[2/3]">
             {cover ? (
-              <img
-                src={cover}
-                alt={book.title}
-                className="w-full h-full object-cover"
-              />
+              <img src={cover} alt={book.title} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm text-center p-4">
                 Sin portada
@@ -129,19 +114,14 @@ const BookDetailPage = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{book.title}</h1>
           <p className="text-lg text-gray-600 mb-4">{book.author}</p>
 
-          {/* Categorías */}
           <div className="flex flex-wrap gap-2 mb-6">
             {book.categories?.map((cat) => (
-              <span
-                key={cat}
-                className="bg-blue-50 text-blue-600 text-sm px-3 py-1 rounded-full"
-              >
+              <span key={cat} className="bg-blue-50 text-blue-600 text-sm px-3 py-1 rounded-full">
                 {cat}
               </span>
             ))}
           </div>
 
-          {/* Detalles */}
           <div className="grid grid-cols-2 gap-4 mb-8 text-sm">
             {book.isbn && (
               <div>
@@ -163,10 +143,7 @@ const BookDetailPage = () => {
               <p className="text-gray-400 font-medium">Disponibilidad</p>
               {book.availableCopies > 0 ? (
                 <p className="text-green-600 font-medium">
-                  {book.availableCopies}{" "}
-                  {book.availableCopies === 1
-                    ? "copia disponible"
-                    : "copias disponibles"}
+                  {book.availableCopies} {book.availableCopies === 1 ? "copia disponible" : "copias disponibles"}
                 </p>
               ) : (
                 <p className="text-red-500 font-medium">No disponible</p>
@@ -177,54 +154,27 @@ const BookDetailPage = () => {
           {/* Acciones */}
           {!isAuthenticated() ? (
             <p className="text-sm text-gray-500">
-              <button
-                onClick={() => navigate("/login")}
-                className="text-blue-600 hover:underline"
-              >
+              <button onClick={() => navigate("/login")} className="text-blue-600 hover:underline">
                 Inicia sesión
               </button>{" "}
               para solicitar un préstamo o reserva.
             </p>
           ) : book.availableCopies > 0 ? (
-            <div>
-              {loanSuccess && (
-                <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 mb-4 text-sm">
-                  {loanSuccess}
-                </div>
-              )}
-              {loanError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">
-                  {loanError}
-                </div>
-              )}
-              <button
-                onClick={handleLoan}
-                disabled={loanLoading || !!loanSuccess}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
-              >
-                {loanLoading ? "Solicitando..." : "Solicitar préstamo"}
-              </button>
-            </div>
+            <button
+              onClick={handleLoan}
+              disabled={loanLoading || loanDone}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
+            >
+              {loanLoading ? "Solicitando..." : loanDone ? "Préstamo solicitado ✓" : "Solicitar préstamo"}
+            </button>
           ) : (
-            <div>
-              {reservationSuccess && (
-                <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 mb-4 text-sm">
-                  {reservationSuccess}
-                </div>
-              )}
-              {reservationError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">
-                  {reservationError}
-                </div>
-              )}
-              <button
-                onClick={handleReservation}
-                disabled={reservationLoading || !!reservationSuccess}
-                className="bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
-              >
-                {reservationLoading ? "Reservando..." : "Reservar"}
-              </button>
-            </div>
+            <button
+              onClick={handleReservation}
+              disabled={reservationLoading || reservationDone}
+              className="bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
+            >
+              {reservationLoading ? "Reservando..." : reservationDone ? "Reservado ✓" : "Reservar"}
+            </button>
           )}
         </div>
       </div>

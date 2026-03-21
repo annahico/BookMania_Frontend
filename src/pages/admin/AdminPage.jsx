@@ -1,7 +1,9 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import adminService from "../../api/adminService";
 import bookService from "../../api/bookService";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import useToast from "../../hooks/useToast";
 
 const TABS = ["Préstamos", "Multas", "Reservas", "Libros", "Categorías"];
 
@@ -27,19 +29,16 @@ const AdminPage = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState({ open: false, message: "", onConfirm: null });
+  const { showToast } = useToast();
 
   const [bookForm, setBookForm] = useState({
     title: "", author: "", isbn: "", publishYear: "",
     coverUrl: "", totalCopies: 1, categoryIds: [],
   });
   const [editingBookId, setEditingBookId] = useState(null);
-  const [bookSuccess, setBookSuccess] = useState(null);
-  const [bookError, setBookError] = useState(null);
 
   const [categoryForm, setCategoryForm] = useState({ name: "", description: "" });
   const [editingCategoryId, setEditingCategoryId] = useState(null);
-  const [categorySuccess, setCategorySuccess] = useState(null);
-  const [categoryError, setCategoryError] = useState(null);
 
   useEffect(() => { fetchAll(); }, []);
 
@@ -58,8 +57,9 @@ const AdminPage = () => {
       setReservations(reservationsData);
       setBooks(booksData);
       setCategories(categoriesData);
+   
     } catch (err) {
-      console.error("Error cargando datos admin:", err);
+      showToast("Error cargando datos del panel", "error");
     } finally {
       setLoading(false);
     }
@@ -72,8 +72,6 @@ const AdminPage = () => {
   // ── Libros ──────────────────────────────────────────────────────────────
   const handleBookSubmit = async (e) => {
     e.preventDefault();
-    setBookError(null);
-    setBookSuccess(null);
     try {
       const payload = {
         ...bookForm,
@@ -83,17 +81,17 @@ const AdminPage = () => {
       };
       if (editingBookId) {
         await adminService.updateBook(editingBookId, payload);
-        setBookSuccess("Libro actualizado correctamente.");
+        showToast("Libro actualizado correctamente", "success");
       } else {
         await adminService.createBook(payload);
-        setBookSuccess("Libro creado correctamente.");
+        showToast("Libro creado correctamente", "success");
       }
       setBookForm({ title: "", author: "", isbn: "", publishYear: "", coverUrl: "", totalCopies: 1, categoryIds: [] });
       setEditingBookId(null);
       const booksData = await bookService.getAll();
       setBooks(booksData);
     } catch (err) {
-      setBookError(err.response?.data?.message || "Error al guardar el libro.");
+      showToast(err.response?.data?.message || "Error al guardar el libro", "error");
     }
   };
 
@@ -118,8 +116,9 @@ const AdminPage = () => {
       try {
         await adminService.deleteBook(id);
         setBooks((prev) => prev.filter((b) => b.id !== id));
+        showToast("Libro eliminado correctamente", "success");
       } catch (err) {
-        setBookError(err.response?.data?.message || "Error al eliminar el libro.");
+        showToast(err.response?.data?.message || "Error al eliminar el libro", "error");
       }
     });
   };
@@ -131,8 +130,9 @@ const AdminPage = () => {
       try {
         await adminService.deleteFine(id);
         setFines((prev) => prev.filter((f) => f.id !== id));
+        showToast("Multa anulada correctamente", "success");
       } catch (err) {
-        console.error("Error al anular la multa:", err);
+        showToast(err.response?.data?.message || "Error al anular la multa", "error");
       }
     });
   };
@@ -140,33 +140,32 @@ const AdminPage = () => {
   // ── Categorías ──────────────────────────────────────────────────────────
   const handleCategorySubmit = async (e) => {
     e.preventDefault();
-    setCategoryError(null);
-    setCategorySuccess(null);
     try {
       if (editingCategoryId) {
         await adminService.updateCategory(editingCategoryId, categoryForm);
-        setCategorySuccess("Categoría actualizada correctamente.");
+        showToast("Categoría actualizada correctamente", "success");
       } else {
         await adminService.createCategory(categoryForm);
-        setCategorySuccess("Categoría creada correctamente.");
+        showToast("Categoría creada correctamente", "success");
       }
       setCategoryForm({ name: "", description: "" });
       setEditingCategoryId(null);
       const categoriesData = await bookService.getCategories();
       setCategories(categoriesData);
     } catch (err) {
-      setCategoryError(err.response?.data?.message || "Error al guardar la categoría.");
+      showToast(err.response?.data?.message || "Error al guardar la categoría", "error");
     }
   };
 
   const handleDeleteCategory = (id) => {
-    confirm("¿Eliminar esta categoría? Los libros asociados perderán esta categoría.", async () => {
+    confirm("¿Eliminar esta categoría?", async () => {
       setModal({ open: false });
       try {
         await adminService.deleteCategory(id);
         setCategories((prev) => prev.filter((c) => c.id !== id));
+        showToast("Categoría eliminada correctamente", "success");
       } catch (err) {
-        setCategoryError(err.response?.data?.message || "Error al eliminar la categoría.");
+        showToast(err.response?.data?.message || "Error al eliminar la categoría", "error");
       }
     });
   };
@@ -273,9 +272,6 @@ const AdminPage = () => {
             <h2 className="font-semibold text-gray-900 mb-4">
               {editingBookId ? "Editar libro" : "Añadir nuevo libro"}
             </h2>
-            {bookSuccess && <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 mb-4 text-sm">{bookSuccess}</div>}
-            {bookError && <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">{bookError}</div>}
-
             <form onSubmit={handleBookSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input type="text" placeholder="Título *" required value={bookForm.title}
                 onChange={(e) => setBookForm({ ...bookForm, title: e.target.value })}
@@ -370,9 +366,6 @@ const AdminPage = () => {
             <h2 className="font-semibold text-gray-900 mb-4">
               {editingCategoryId ? "Editar categoría" : "Nueva categoría"}
             </h2>
-            {categorySuccess && <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 mb-4 text-sm">{categorySuccess}</div>}
-            {categoryError && <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-4 text-sm">{categoryError}</div>}
-
             <form onSubmit={handleCategorySubmit} className="flex gap-3 flex-wrap">
               <input type="text" placeholder="Nombre *" required value={categoryForm.name}
                 onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
@@ -419,7 +412,6 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* Modal confirmación */}
       {modal.open && (
         <ConfirmModal
           message={modal.message}
