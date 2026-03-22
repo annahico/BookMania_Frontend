@@ -73,7 +73,7 @@ const BookDetailPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Cargando libro...</p>
+        <p className="text-fuchsia-400">Cargando libro...</p>
       </div>
     );
   }
@@ -88,21 +88,19 @@ const BookDetailPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <button
-        onClick={() => navigate(-1)}
-        className="text-sm text-gray-500 hover:text-blue-600 mb-6 flex items-center gap-1"
-      >
+      <button onClick={() => navigate(-1)}
+        className="text-sm text-fuchsia-400 hover:text-fuchsia-600 mb-6 flex items-center gap-1">
         ← Volver al catálogo
       </button>
 
       <div className="flex flex-col md:flex-row gap-10">
         {/* Portada */}
         <div className="w-full md:w-56 flex-shrink-0">
-          <div className="bg-gray-100 rounded-xl overflow-hidden aspect-[2/3]">
+          <div className="bg-fuchsia-50 rounded-2xl overflow-hidden aspect-[2/3] border border-fuchsia-100">
             {cover ? (
               <img src={cover} alt={book.title} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm text-center p-4">
+              <div className="w-full h-full flex items-center justify-center text-fuchsia-300 text-sm text-center p-4">
                 Sin portada
               </div>
             )}
@@ -111,36 +109,37 @@ const BookDetailPage = () => {
 
         {/* Info */}
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{book.title}</h1>
+          <h1 className="text-3xl font-bold text-fuchsia-700 mb-2">{book.title}</h1>
           <p className="text-lg text-gray-600 mb-4">{book.author}</p>
 
           <div className="flex flex-wrap gap-2 mb-6">
             {book.categories?.map((cat) => (
-              <span key={cat} className="bg-blue-50 text-blue-600 text-sm px-3 py-1 rounded-full">
+              <span key={cat}
+                className="bg-fuchsia-50 text-fuchsia-600 border border-fuchsia-200 text-sm px-3 py-1 rounded-full">
                 {cat}
               </span>
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-8 text-sm">
+          <div className="grid grid-cols-2 gap-4 mb-8 text-sm bg-fuchsia-50 rounded-2xl p-4 border border-fuchsia-100">
             {book.isbn && (
               <div>
-                <p className="text-gray-400 font-medium">ISBN</p>
+                <p className="text-fuchsia-400 font-medium">ISBN</p>
                 <p className="text-gray-700">{book.isbn}</p>
               </div>
             )}
             {book.publishYear && (
               <div>
-                <p className="text-gray-400 font-medium">Año de publicación</p>
+                <p className="text-fuchsia-400 font-medium">Año de publicación</p>
                 <p className="text-gray-700">{book.publishYear}</p>
               </div>
             )}
             <div>
-              <p className="text-gray-400 font-medium">Copias totales</p>
+              <p className="text-fuchsia-400 font-medium">Copias totales</p>
               <p className="text-gray-700">{book.totalCopies}</p>
             </div>
             <div>
-              <p className="text-gray-400 font-medium">Disponibilidad</p>
+              <p className="text-fuchsia-400 font-medium">Disponibilidad</p>
               {book.availableCopies > 0 ? (
                 <p className="text-green-600 font-medium">
                   {book.availableCopies} {book.availableCopies === 1 ? "copia disponible" : "copias disponibles"}
@@ -151,28 +150,21 @@ const BookDetailPage = () => {
             </div>
           </div>
 
-          {/* Acciones */}
           {!isAuthenticated() ? (
             <p className="text-sm text-gray-500">
-              <button onClick={() => navigate("/login")} className="text-blue-600 hover:underline">
+              <button onClick={() => navigate("/login")} className="text-fuchsia-500 hover:underline">
                 Inicia sesión
               </button>{" "}
               para solicitar un préstamo o reserva.
             </p>
           ) : book.availableCopies > 0 ? (
-            <button
-              onClick={handleLoan}
-              disabled={loanLoading || loanDone}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
-            >
+            <button onClick={handleLoan} disabled={loanLoading || loanDone}
+              className="bg-fuchsia-500 hover:bg-fuchsia-600 disabled:bg-fuchsia-300 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-colors">
               {loanLoading ? "Solicitando..." : loanDone ? "Préstamo solicitado ✓" : "Solicitar préstamo"}
             </button>
           ) : (
-            <button
-              onClick={handleReservation}
-              disabled={reservationLoading || reservationDone}
-              className="bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors"
-            >
+            <button onClick={handleReservation} disabled={reservationLoading || reservationDone}
+              className="bg-fuchsia-500 hover:bg-fuchsia-600 disabled:bg-fuchsia-300 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-colors">
               {reservationLoading ? "Reservando..." : reservationDone ? "Reservado ✓" : "Reservar"}
             </button>
           )}
