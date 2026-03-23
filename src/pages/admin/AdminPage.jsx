@@ -48,13 +48,13 @@ const AdminPage = () => {
         adminService.getAllLoans(),
         adminService.getAllFines(),
         adminService.getAllReservations(),
-        bookService.getAll(),
+        bookService.getAll({ size: 1000 }), // ← pasar size grande
         bookService.getCategories(),
       ]);
       setLoans(loansData);
       setFines(finesData);
       setReservations(reservationsData);
-      setBooks(booksData);
+      setBooks(booksData.content); // ← extraer el array
       setCategories(categoriesData);
     } catch (err) {
       showToast("Error cargando datos del panel", "error");
@@ -83,7 +83,8 @@ const AdminPage = () => {
       }
       setBookForm({ title: "", author: "", isbn: "", publishYear: "", coverUrl: "", totalCopies: 1, categoryIds: [] });
       setEditingBookId(null);
-      setBooks(await bookService.getAll());
+      const booksData = await bookService.getAll({ size: 1000 }); // ← pasar size grande
+      setBooks(booksData.content); // ← extraer el array
     } catch (err) {
       showToast(err.response?.data?.message || "Error al guardar el libro", "error");
     }
@@ -180,11 +181,10 @@ const AdminPage = () => {
       <div className="flex gap-2 mb-8 border-b border-fuchsia-100 overflow-x-auto">
         {TABS.map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-              activeTab === tab
-                ? "border-fuchsia-500 text-fuchsia-600"
-                : "border-transparent text-gray-500 hover:text-fuchsia-500"
-            }`}>
+            className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab
+              ? "border-fuchsia-500 text-fuchsia-600"
+              : "border-transparent text-gray-500 hover:text-fuchsia-500"
+              }`}>
             {tab}
           </button>
         ))}

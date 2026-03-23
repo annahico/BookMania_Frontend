@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import bookService from "../../api/bookService";
 import { getBookCover } from "../../utils/bookCover";
@@ -31,35 +31,62 @@ const BooksPage = () => {
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Filtros
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [searchInput, setSearchInput] = useState("");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [booksData, categoriesData] = await Promise.all([
-          bookService.getAll(),
-          bookService.getCategories(),
-        ]);
-        setBooks(booksData);
-        setCategories(categoriesData);
-      } catch (err) {
-        console.error("Error cargando libros:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
+  const PAGE_SIZE = 25;
+
+  const fetchBooks = useCallback(async (page = 0, titleAuthor = "", catId = "") => {
+    setLoading(true);
+    try {
+      const params = { page, size: PAGE_SIZE };
+      if (titleAuthor) params.title = titleAuthor;
+      if (catId) params.categoryId = catId;
+
+      const data = await bookService.getAll(params);
+      setBooks(data.content);
+      setTotalPages(data.totalPages);
+      setTotalElements(data.totalElements);
+      setCurrentPage(data.number);
+    } catch (err) {
+      console.error("Error cargando libros:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const filtered = books.filter((book) => {
-    const matchesSearch =
-      book.title.toLowerCase().includes(search.toLowerCase()) ||
-      book.author.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "" || book.categories?.includes(selectedCategory);
-    return matchesSearch && matchesCategory;
-  });
+  // Cargar categorías una sola vez
+  useEffect(() => {
+    bookService.getCategories().then(setCategories).catch(console.error);
+  }, []);
+
+  // Cargar libros cuando cambian filtros o página
+  useEffect(() => {
+    const cat = categories.find((c) => c.name === selectedCategory);
+    fetchBooks(currentPage, search, cat?.id || "");
+  }, [currentPage, search, selectedCategory, fetchBooks, categories]);
+
+  // Buscar con debounce al escribir
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+      setCurrentPage(0);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+    setCurrentPage(0);
+  };
 
   if (loading) {
     return (
@@ -83,12 +110,19 @@ const BooksPage = () => {
       <h1 className="text-2xl font-bold text-fuchsia-700 mb-6">Catálogo de libros</h1>
 
       {/* Filtros */}
-      <div className="flex gap-4 mb-8">
-        <input type="text" placeholder="Buscar por título o autor..."
-          value={search} onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 border border-fuchsia-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white" />
-        <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}
-          className="border border-fuchsia-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white">
+      <div className="flex gap-4 mb-6 flex-wrap">
+        <input
+          type="text"
+          placeholder="Buscar por título o autor..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="flex-1 min-w-[200px] border border-fuchsia-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white"
+        />
+        <select
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+          className="border border-fuchsia-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white"
+        >
           <option value="">Todas las categorías</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.name}>{cat.name}</option>
@@ -96,12 +130,20 @@ const BooksPage = () => {
         </select>
       </div>
 
+      {/* Contador resultados */}
+      {!loading && (
+        <p className="text-sm text-gray-400 mb-4">
+          {totalElements} {totalElements === 1 ? "libro encontrado" : "libros encontrados"}
+          {totalPages > 1 && ` · Página ${currentPage + 1} de ${totalPages}`}
+        </p>
+      )}
+
       {/* Grid */}
-      {filtered.length === 0 ? (
+      {books.length === 0 ? (
         <p className="text-gray-500 text-center py-12">No se encontraron libros.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {filtered.map((book) => (
+          {books.map((book) => (
             <div key={book.id} onClick={() => navigate(`/books/${book.id}`)}
               className="cursor-pointer group">
               <BookCover isbn={book.isbn} title={book.title} coverUrl={book.coverUrl} />
@@ -125,6 +167,66 @@ const BooksPage = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-10">
+          <button
+            onClick={() => setCurrentPage(0)}
+            disabled={currentPage === 0}
+            className="px-3 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            «
+          </button>
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+            disabled={currentPage === 0}
+            className="px-4 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            Anterior
+          </button>
+
+          {/* Números de página */}
+          {Array.from({ length: totalPages }, (_, i) => i)
+            .filter((i) => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
+            .reduce((acc, i, idx, arr) => {
+              if (idx > 0 && i - arr[idx - 1] > 1) acc.push("...");
+              acc.push(i);
+              return acc;
+            }, [])
+            .map((item, idx) =>
+              item === "..." ? (
+                <span key={`dots-${idx}`} className="px-2 text-gray-400">...</span>
+              ) : (
+                <button
+                  key={item}
+                  onClick={() => setCurrentPage(item)}
+                  className={`px-4 py-2 text-sm rounded-xl transition-colors ${currentPage === item
+                      ? "bg-fuchsia-500 text-white font-medium"
+                      : "border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50"
+                    }`}
+                >
+                  {item + 1}
+                </button>
+              )
+            )}
+
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={currentPage === totalPages - 1}
+            className="px-4 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            Siguiente
+          </button>
+          <button
+            onClick={() => setCurrentPage(totalPages - 1)}
+            disabled={currentPage === totalPages - 1}
+            className="px-3 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            »
+          </button>
         </div>
       )}
     </div>
