@@ -2,26 +2,27 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import authService from "../../api/authService";
+import useToast from "../../hooks/useToast";
 
 const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
     setLoading(true);
     try {
       const data = await authService.login(formData.email, formData.password);
       login({ email: data.email, role: data.role, name: data.name }, data.token);
+      showToast(`¡Bienvenida, ${data.name}!`, "success");
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Email o contraseña incorrectos");
+      showToast(err.response?.data?.message || "Email o contraseña incorrectos", "error");
     } finally {
       setLoading(false);
     }
@@ -34,12 +35,6 @@ const LoginPage = () => {
           <h1 className="text-3xl font-bold text-fuchsia-600">📚 BookMania</h1>
           <p className="text-gray-500 mt-1">Inicia sesión en tu cuenta</p>
         </div>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-6 text-sm">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
