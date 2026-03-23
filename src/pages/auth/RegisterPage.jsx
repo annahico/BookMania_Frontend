@@ -1,24 +1,33 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import authService from "../../api/authService";
+import useAuth from "../../hooks/useAuth";
+import useToast from "../../hooks/useToast";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
     setLoading(true);
     try {
+      // Registro
       await authService.register(formData.name, formData.email, formData.password);
-      navigate("/login");
+
+      // Login automático
+      const data = await authService.login(formData.email, formData.password);
+      login({ email: data.email, role: data.role, name: data.name }, data.token);
+
+      showToast(`¡Bienvenida, ${data.name}! Cuenta creada correctamente.`, "success");
+      navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Error al registrarse.");
+      showToast(err.response?.data?.message || "Error al registrarse.", "error");
     } finally {
       setLoading(false);
     }
@@ -31,12 +40,6 @@ const RegisterPage = () => {
           <h1 className="text-3xl font-bold text-fuchsia-600">📚 BookMania</h1>
           <p className="text-gray-500 mt-1">Crea tu cuenta</p>
         </div>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-6 text-sm">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
