@@ -37,7 +37,7 @@ const BooksPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 15;
 
   const fetchBooks = useCallback(async (page = 0, titleAuthor = "", catId = "") => {
     setLoading(true);
