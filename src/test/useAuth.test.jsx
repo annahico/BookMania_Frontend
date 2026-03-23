@@ -4,7 +4,6 @@ import { AuthContext } from "../context/AuthContext";
 import AuthProvider from "../context/AuthProvider";
 import useAuth from "../hooks/useAuth";
 
-// Componente auxiliar para exponer el hook
 const TestComponent = () => {
   const { user, isAuthenticated, isAdmin, login, logout } = useAuth();
   return (

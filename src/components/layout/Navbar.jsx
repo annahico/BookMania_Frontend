@@ -16,18 +16,15 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Spacer para compensar el navbar fijo */}
       <div className="h-14" />
 
       <nav className="fixed top-0 left-0 right-0 w-full z-50 bg-fuchsia-600 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
 
-          {/* Logo */}
           <Link to="/" className="shrink-0">
             <img src={logo} alt="BookMania" className="h-10 w-auto" />
           </Link>
 
-          {/* Desktop links */}
           <div className="hidden md:flex items-center gap-5">
             <Link to="/" className="text-sm text-gray-700 hover:text-gray-900 transition-colors">
               Catálogo
@@ -52,7 +49,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Desktop usuario */}
           <div className="hidden md:flex items-center gap-3 shrink-0">
             {isAuthenticated() ? (
               <>
@@ -82,7 +78,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Hamburger móvil */}
           <button onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden text-gray-900 focus:outline-none">
             {menuOpen ? (
@@ -97,7 +92,6 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile menu */}
         {menuOpen && (
           <div className="md:hidden bg-fuchsia-300 border-t border-fuchsia-200 px-4 pb-4 space-y-1">
             <Link to="/" onClick={() => setMenuOpen(false)}

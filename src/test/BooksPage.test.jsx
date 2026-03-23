@@ -6,10 +6,8 @@ import { vi } from "vitest";
 import BooksPage from "../pages/books/BooksPage";
 import bookService from "../api/bookService";
 
-// Mock del servicio
 vi.mock("../api/bookService");
 
-// Mock de getBookCover para no hacer peticiones reales
 vi.mock("../utils/bookCover", () => ({
   getBookCover: vi.fn().mockResolvedValue(null),
 }));
@@ -154,8 +152,8 @@ describe("BooksPage", () => {
   });
 
   test("muestra skeleton mientras carga", () => {
-    bookService.getAll.mockReturnValue(new Promise(() => {}));
-    bookService.getCategories.mockReturnValue(new Promise(() => {}));
+    bookService.getAll.mockReturnValue(new Promise(() => { }));
+    bookService.getCategories.mockReturnValue(new Promise(() => { }));
     renderBooksPage();
     expect(screen.getByText("Catálogo de libros")).toBeInTheDocument();
   });

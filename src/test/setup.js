@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom';
 
-// Mock localStorage para jsdom
 const localStorageMock = (() => {
   let store = {};
   return {

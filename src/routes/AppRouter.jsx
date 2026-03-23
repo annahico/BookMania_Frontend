@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Layout from "../components/layout/Layout";
 import ToastProvider from "../context/ToastProvider";
-
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import BooksPage from "../pages/books/BooksPage";
@@ -27,11 +26,9 @@ const AppRouter = () => {
     <BrowserRouter>
       <ToastProvider>
         <Routes>
-          {/* Rutas sin Navbar pero con Toast */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* Rutas con Navbar */}
           <Route element={<Layout />}>
             <Route path="/" element={<BooksPage />} />
             <Route path="/books/:id" element={<BookDetailPage />} />
@@ -41,7 +38,6 @@ const AppRouter = () => {
             <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
           </Route>
 
-          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </ToastProvider>

@@ -48,13 +48,13 @@ const AdminPage = () => {
         adminService.getAllLoans(),
         adminService.getAllFines(),
         adminService.getAllReservations(),
-        bookService.getAll({ size: 1000 }), // ← pasar size grande
+        bookService.getAll({ size: 1000 }), 
         bookService.getCategories(),
       ]);
       setLoans(loansData);
       setFines(finesData);
       setReservations(reservationsData);
-      setBooks(booksData.content); // ← extraer el array
+      setBooks(booksData.content); 
       setCategories(categoriesData);
     } catch (err) {
       showToast("Error cargando datos del panel", "error");
@@ -83,8 +83,8 @@ const AdminPage = () => {
       }
       setBookForm({ title: "", author: "", isbn: "", publishYear: "", coverUrl: "", totalCopies: 1, categoryIds: [] });
       setEditingBookId(null);
-      const booksData = await bookService.getAll({ size: 1000 }); // ← pasar size grande
-      setBooks(booksData.content); // ← extraer el array
+      const booksData = await bookService.getAll({ size: 1000 }); 
+      setBooks(booksData.content); 
     } catch (err) {
       showToast(err.response?.data?.message || "Error al guardar el libro", "error");
     }
@@ -177,7 +177,6 @@ const AdminPage = () => {
     <div className="max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold text-fuchsia-700 mb-6">Panel de administración</h1>
 
-      {/* Tabs */}
       <div className="flex gap-2 mb-8 border-b border-fuchsia-100 overflow-x-auto">
         {TABS.map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
@@ -190,7 +189,6 @@ const AdminPage = () => {
         ))}
       </div>
 
-      {/* ── Préstamos ── */}
       {activeTab === "Préstamos" && (
         <div className="space-y-3">
           <p className="text-sm text-gray-500 mb-4">{loans.length} préstamos en total</p>
@@ -214,7 +212,6 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* ── Multas ── */}
       {activeTab === "Multas" && (
         <div className="space-y-3">
           <p className="text-sm text-gray-500 mb-4">{fines.length} multas en total</p>
@@ -238,7 +235,6 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* ── Reservas ── */}
       {activeTab === "Reservas" && (
         <div className="space-y-3">
           <p className="text-sm text-gray-500 mb-4">{reservations.length} reservas en total</p>
@@ -261,7 +257,6 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* ── Libros ── */}
       {activeTab === "Libros" && (
         <div>
           <div className="bg-white border border-fuchsia-100 rounded-2xl p-6 mb-6">
@@ -340,7 +335,6 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* ── Categorías ── */}
       {activeTab === "Categorías" && (
         <div>
           <div className="bg-white border border-fuchsia-100 rounded-2xl p-6 mb-6">
