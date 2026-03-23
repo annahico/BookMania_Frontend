@@ -110,7 +110,6 @@ const BooksPage = () => {
       <h1 className="text-2xl font-bold text-fuchsia-700 mb-6">Catálogo de libros</h1>
 
       {/* Filtros */}
-<<<<<<< HEAD
       <div className="flex gap-4 mb-6 flex-wrap">
         <input
           type="text"
@@ -124,14 +123,6 @@ const BooksPage = () => {
           onChange={handleCategoryChange}
           className="border border-fuchsia-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white"
         >
-=======
-      <div className="flex gap-4 mb-8">
-        <input type="text" placeholder="Buscar por título o autor..."
-          value={search} onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 border border-fuchsia-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white" />
-        <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}
-          className="border border-fuchsia-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white">
->>>>>>> 91a58450f23775c34b658452ff9195a09f484281
           <option value="">Todas las categorías</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.name}>{cat.name}</option>
@@ -139,7 +130,6 @@ const BooksPage = () => {
         </select>
       </div>
 
-<<<<<<< HEAD
       {/* Contador resultados */}
       {!loading && (
         <p className="text-sm text-gray-400 mb-4">
@@ -154,14 +144,6 @@ const BooksPage = () => {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {books.map((book) => (
-=======
-      {/* Grid */}
-      {filtered.length === 0 ? (
-        <p className="text-gray-500 text-center py-12">No se encontraron libros.</p>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {filtered.map((book) => (
->>>>>>> 91a58450f23775c34b658452ff9195a09f484281
             <div key={book.id} onClick={() => navigate(`/books/${book.id}`)}
               className="cursor-pointer group">
               <BookCover isbn={book.isbn} title={book.title} coverUrl={book.coverUrl} />
