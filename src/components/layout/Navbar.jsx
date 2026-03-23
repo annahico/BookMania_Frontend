@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import logo from "../../assets/bookmania_logo.png";
 
 const Navbar = () => {
   const { user, logout, isAdmin, isAuthenticated } = useAuth();
@@ -22,8 +23,8 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
 
           {/* Logo */}
-          <Link to="/" className="text-xl font-bold text-gray-900 tracking-wide shrink-0">
-            📚 BookMania
+          <Link to="/" className="shrink-0">
+            <img src={logo} alt="BookMania" className="h-10 w-auto" />
           </Link>
 
           {/* Desktop links */}
