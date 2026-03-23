@@ -7,7 +7,7 @@ import "./index.css";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
-      <AppRouter />
+        <AppRouter />
     </AuthProvider>
   </StrictMode>
 );
