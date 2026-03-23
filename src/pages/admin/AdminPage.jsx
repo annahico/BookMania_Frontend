@@ -32,7 +32,7 @@ const AdminPage = () => {
   const { showToast } = useToast();
 
   const [bookForm, setBookForm] = useState({
-    title: "", author: "", isbn: "", publishYear: "",
+    title: "", author: "", isbn: "", publishYear: "", pages: "",
     coverUrl: "", totalCopies: 1, categoryIds: [],
   });
   const [editingBookId, setEditingBookId] = useState(null);
@@ -48,13 +48,13 @@ const AdminPage = () => {
         adminService.getAllLoans(),
         adminService.getAllFines(),
         adminService.getAllReservations(),
-        bookService.getAll({ size: 1000 }), 
+        bookService.getAll({ size: 1000 }),
         bookService.getCategories(),
       ]);
       setLoans(loansData);
       setFines(finesData);
       setReservations(reservationsData);
-      setBooks(booksData.content); 
+      setBooks(booksData.content);
       setCategories(categoriesData);
     } catch (err) {
       showToast("Error cargando datos del panel", "error");
@@ -81,10 +81,10 @@ const AdminPage = () => {
         await adminService.createBook(payload);
         showToast("Libro creado correctamente", "success");
       }
-      setBookForm({ title: "", author: "", isbn: "", publishYear: "", coverUrl: "", totalCopies: 1, categoryIds: [] });
+      setBookForm({ title: "", author: "", isbn: "", pages: "", publishYear: "", coverUrl: "", totalCopies: 1, categoryIds: [] });
       setEditingBookId(null);
-      const booksData = await bookService.getAll({ size: 1000 }); 
-      setBooks(booksData.content); 
+      const booksData = await bookService.getAll({ size: 1000 });
+      setBooks(booksData.content);
     } catch (err) {
       showToast(err.response?.data?.message || "Error al guardar el libro", "error");
     }
@@ -97,6 +97,7 @@ const AdminPage = () => {
       publishYear: book.publishYear || "", coverUrl: book.coverUrl || "",
       totalCopies: book.totalCopies,
       categoryIds: categories.filter((c) => book.categories?.includes(c.name)).map((c) => c.id),
+      pages: book.pages || "",
     });
     setActiveTab("Libros");
     window.scrollTo(0, 0);
@@ -270,6 +271,8 @@ const AdminPage = () => {
                 value={bookForm.author} onChange={(e) => setBookForm({ ...bookForm, author: e.target.value })} />
               <input className={inputClass} type="text" placeholder="ISBN *" required
                 value={bookForm.isbn} onChange={(e) => setBookForm({ ...bookForm, isbn: e.target.value })} />
+              <input className={inputClass} type="number" placeholder="Número de páginas" min={1}
+                value={bookForm.pages} onChange={(e) => setBookForm({ ...bookForm, pages: e.target.value })} />
               <input className={inputClass} type="number" placeholder="Año de publicación"
                 value={bookForm.publishYear} onChange={(e) => setBookForm({ ...bookForm, publishYear: e.target.value })} />
               <input className={inputClass} type="text" placeholder="URL portada"
@@ -303,7 +306,7 @@ const AdminPage = () => {
                 </button>
                 {editingBookId && (
                   <button type="button" className={btnSecondary}
-                    onClick={() => { setEditingBookId(null); setBookForm({ title: "", author: "", isbn: "", publishYear: "", coverUrl: "", totalCopies: 1, categoryIds: [] }); }}>
+                    onClick={() => { setEditingBookId(null); setBookForm({ title: "", author: "", isbn: "", pages: "", publishYear: "", coverUrl: "", totalCopies: 1, categoryIds: [] }); }}>
                     Cancelar
                   </button>
                 )}
@@ -388,3 +391,4 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
+

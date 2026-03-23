@@ -127,6 +127,12 @@ const BookDetailPage = () => {
                 <p className="text-gray-700">{book.isbn}</p>
               </div>
             )}
+            {book.pages && (
+              <div>
+                <p className="text-fuchsia-400 font-medium">Páginas</p>
+                <p className="text-gray-700">{book.pages}</p>
+              </div>
+            )}
             {book.publishYear && (
               <div>
                 <p className="text-fuchsia-400 font-medium">Año de publicación</p>
