@@ -3,7 +3,7 @@ import axiosInstance from "./axiosInstance";
 const bookService = {
   getAll: async (params = {}) => {
     const response = await axiosInstance.get("/api/books", { params });
-    return response.data.content; // ← extraer el array del objeto paginado
+    return response.data; // devuelve el objeto completo con content, totalPages, etc.
   },
 
   getById: async (id) => {
