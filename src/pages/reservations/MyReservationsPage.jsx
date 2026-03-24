@@ -52,6 +52,7 @@ const MyReservationsPage = () => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [page, setPage] = useState(0);
   const [modal, setModal] = useState({ open: false, message: "", onConfirm: null });
   const { showToast } = useToast();
@@ -84,9 +85,11 @@ const MyReservationsPage = () => {
     });
   };
 
-  const filtered = reservations.filter((r) =>
-    r.bookTitle?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = reservations.filter((r) => {
+    const matchesSearch = r.bookTitle?.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter === "ALL" || r.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
@@ -110,16 +113,27 @@ const MyReservationsPage = () => {
     <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-fuchsia-700 mb-6">Mis reservas</h1>
 
-      <input type="text" placeholder="Buscar por título..." value={search}
-        onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-        className="border border-fuchsia-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white w-full mb-3" />
+      <div className="flex gap-2 mb-3">
+        <input type="text" placeholder="Buscar por título..." value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+          className="border border-fuchsia-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white flex-1" />
+        <select value={statusFilter}
+          onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
+          className="border border-fuchsia-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white text-gray-600">
+          <option value="ALL">Todos</option>
+          <option value="PENDING">En cola</option>
+          <option value="FULFILLED">Cumplida</option>
+          <option value="CANCELLED">Cancelada</option>
+          <option value="EXPIRED">Expirada</option>
+        </select>
+      </div>
       <p className="text-sm text-gray-500 mb-4">
         {filtered.length} reservas
         {totalPages > 1 && ` · Página ${page + 1} de ${totalPages}`}
       </p>
 
       {paginated.length === 0 ? (
-        <p className="text-gray-500 text-center py-12">No tienes reservas.</p>
+        <p className="text-gray-500 text-center py-12">No hay reservas.</p>
       ) : (
         <div className="space-y-4">
           {paginated.map((reservation) => (
