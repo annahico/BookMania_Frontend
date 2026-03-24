@@ -6,6 +6,7 @@ import ConfirmModal from "../../components/common/ConfirmModal";
 import useToast from "../../hooks/useToast";
 
 const TABS = ["Préstamos", "Multas", "Reservas", "Libros", "Categorías"];
+const PAGE_SIZE = 15;
 
 const statusLoanLabel = {
   ISSUED: { text: "Activo", color: "bg-green-100 text-green-700" },
@@ -20,6 +21,41 @@ const statusReservationLabel = {
   EXPIRED: { text: "Expirada", color: "bg-red-100 text-red-700" },
 };
 
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+  return (
+    <div className="flex items-center justify-center gap-2 mt-6">
+      <button onClick={() => onPageChange(0)} disabled={currentPage === 0}
+        className="px-3 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">«</button>
+      <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}
+        className="px-4 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">Anterior</button>
+      {Array.from({ length: totalPages }, (_, i) => i)
+        .filter((i) => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
+        .reduce((acc, i, idx, arr) => {
+          if (idx > 0 && i - arr[idx - 1] > 1) acc.push("...");
+          acc.push(i);
+          return acc;
+        }, [])
+        .map((item, idx) =>
+          item === "..." ? (
+            <span key={`dots-${idx}`} className="px-2 text-gray-400">...</span>
+          ) : (
+            <button key={item} onClick={() => onPageChange(item)}
+              className={`px-4 py-2 text-sm rounded-xl transition-colors ${currentPage === item
+                ? "bg-fuchsia-500 text-white font-medium"
+                : "border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50"}`}>
+              {item + 1}
+            </button>
+          )
+        )}
+      <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages - 1}
+        className="px-4 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">Siguiente</button>
+      <button onClick={() => onPageChange(totalPages - 1)} disabled={currentPage === totalPages - 1}
+        className="px-3 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">»</button>
+    </div>
+  );
+};
+
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState("Préstamos");
   const [loans, setLoans] = useState([]);
@@ -30,6 +66,17 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState({ open: false, message: "", onConfirm: null });
   const { showToast } = useToast();
+
+  const [loanSearch, setLoanSearch] = useState("");
+  const [loanPage, setLoanPage] = useState(0);
+  const [fineSearch, setFineSearch] = useState("");
+  const [finePage, setFinePage] = useState(0);
+  const [reservationSearch, setReservationSearch] = useState("");
+  const [reservationPage, setReservationPage] = useState(0);
+  const [bookSearch, setBookSearch] = useState("");
+  const [bookPage, setBookPage] = useState(0);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [categoryPage, setCategoryPage] = useState(0);
 
   const [bookForm, setBookForm] = useState({
     title: "", author: "", isbn: "", publishYear: "", pages: "",
@@ -65,6 +112,29 @@ const AdminPage = () => {
 
   const confirm = (message, onConfirm) => setModal({ open: true, message, onConfirm });
 
+  const paginate = (items, page) => items.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const totalPages = (items) => Math.ceil(items.length / PAGE_SIZE);
+
+  const filteredLoans = loans.filter((l) =>
+    l.bookTitle?.toLowerCase().includes(loanSearch.toLowerCase()) ||
+    l.userName?.toLowerCase().includes(loanSearch.toLowerCase())
+  );
+  const filteredFines = fines.filter((f) =>
+    f.bookTitle?.toLowerCase().includes(fineSearch.toLowerCase()) ||
+    f.userName?.toLowerCase().includes(fineSearch.toLowerCase())
+  );
+  const filteredReservations = reservations.filter((r) =>
+    r.bookTitle?.toLowerCase().includes(reservationSearch.toLowerCase()) ||
+    r.userName?.toLowerCase().includes(reservationSearch.toLowerCase())
+  );
+  const filteredBooks = books.filter((b) =>
+    b.title?.toLowerCase().includes(bookSearch.toLowerCase()) ||
+    b.author?.toLowerCase().includes(bookSearch.toLowerCase())
+  );
+  const filteredCategories = categories.filter((c) =>
+    c.name?.toLowerCase().includes(categorySearch.toLowerCase())
+  );
+
   const handleBookSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -72,6 +142,7 @@ const AdminPage = () => {
         ...bookForm,
         publishYear: bookForm.publishYear ? parseInt(bookForm.publishYear) : null,
         totalCopies: parseInt(bookForm.totalCopies),
+        pages: bookForm.pages ? parseInt(bookForm.pages) : null,
         categoryIds: bookForm.categoryIds.map(Number),
       };
       if (editingBookId) {
@@ -95,9 +166,8 @@ const AdminPage = () => {
     setBookForm({
       title: book.title, author: book.author, isbn: book.isbn,
       publishYear: book.publishYear || "", coverUrl: book.coverUrl || "",
-      totalCopies: book.totalCopies,
+      totalCopies: book.totalCopies, pages: book.pages || "",
       categoryIds: categories.filter((c) => book.categories?.includes(c.name)).map((c) => c.id),
-      pages: book.pages || "",
     });
     setActiveTab("Libros");
     window.scrollTo(0, 0);
@@ -169,6 +239,7 @@ const AdminPage = () => {
   }
 
   const inputClass = "border border-fuchsia-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white w-full";
+  const searchClass = "border border-fuchsia-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white w-full mb-4";
   const btnPrimary = "bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-medium px-6 py-2 rounded-xl text-sm transition-colors";
   const btnSecondary = "border border-gray-300 text-gray-600 hover:bg-gray-50 px-6 py-2 rounded-xl text-sm transition-colors";
   const btnEdit = "text-sm border border-fuchsia-400 text-fuchsia-600 hover:bg-fuchsia-50 px-3 py-1.5 rounded-xl transition-colors";
@@ -183,81 +254,109 @@ const AdminPage = () => {
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab
               ? "border-fuchsia-500 text-fuchsia-600"
-              : "border-transparent text-gray-500 hover:text-fuchsia-500"
-              }`}>
+              : "border-transparent text-gray-500 hover:text-fuchsia-500"}`}>
             {tab}
           </button>
         ))}
       </div>
 
+      {/* ── Préstamos ── */}
       {activeTab === "Préstamos" && (
-        <div className="space-y-3">
-          <p className="text-sm text-gray-500 mb-4">{loans.length} préstamos en total</p>
-          {loans.length === 0 && <p className="text-gray-400 text-center py-8">No hay préstamos.</p>}
-          {loans.map((loan) => (
-            <div key={loan.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div>
-                <p className="font-medium text-fuchsia-700">{loan.bookTitle}</p>
-                <p className="text-sm text-gray-600">{loan.userName}</p>
-                <div className="flex gap-3 mt-1 text-xs text-gray-400 flex-wrap">
-                  <span>Vence: {new Date(loan.dueDate).toLocaleDateString("es-ES")}</span>
-                  {loan.returnDate && <span>Devuelto: {new Date(loan.returnDate).toLocaleDateString("es-ES")}</span>}
-                  <span>Prórrogas: {loan.extensionsUsed}/3</span>
+        <div>
+          <input type="text" placeholder="Buscar por libro o usuario..." value={loanSearch}
+            onChange={(e) => { setLoanSearch(e.target.value); setLoanPage(0); }}
+            className={searchClass} />
+          <p className="text-sm text-gray-500 mb-4">
+            {filteredLoans.length} préstamos
+            {totalPages(filteredLoans) > 1 && ` · Página ${loanPage + 1} de ${totalPages(filteredLoans)}`}
+          </p>
+          <div className="space-y-3">
+            {filteredLoans.length === 0 && <p className="text-gray-400 text-center py-8">No hay préstamos.</p>}
+            {paginate(filteredLoans, loanPage).map((loan) => (
+              <div key={loan.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <p className="font-medium text-fuchsia-700">{loan.bookTitle}</p>
+                  <p className="text-sm text-gray-600">{loan.userName}</p>
+                  <div className="flex gap-3 mt-1 text-xs text-gray-400 flex-wrap">
+                    <span>Vence: {new Date(loan.dueDate).toLocaleDateString("es-ES")}</span>
+                    {loan.returnDate && <span>Devuelto: {new Date(loan.returnDate).toLocaleDateString("es-ES")}</span>}
+                    <span>Prórrogas: {loan.extensionsUsed}/3</span>
+                  </div>
                 </div>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium self-start sm:self-center ${statusLoanLabel[loan.status]?.color}`}>
+                  {statusLoanLabel[loan.status]?.text}
+                </span>
               </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium self-start sm:self-center ${statusLoanLabel[loan.status]?.color}`}>
-                {statusLoanLabel[loan.status]?.text}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
+          <Pagination currentPage={loanPage} totalPages={totalPages(filteredLoans)} onPageChange={setLoanPage} />
         </div>
       )}
 
+      {/* ── Multas ── */}
       {activeTab === "Multas" && (
-        <div className="space-y-3">
-          <p className="text-sm text-gray-500 mb-4">{fines.length} multas en total</p>
-          {fines.length === 0 && <p className="text-gray-400 text-center py-8">No hay multas.</p>}
-          {fines.map((fine) => (
-            <div key={fine.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex items-center justify-between gap-4">
-              <div>
-                <p className="font-medium text-fuchsia-700">{fine.bookTitle}</p>
-                <p className="text-sm text-gray-600">{fine.userName}</p>
-                <div className="flex gap-4 mt-1 text-xs text-gray-400 flex-wrap">
-                  <span>Retraso: <strong>{fine.daysOverdue} días</strong></span>
-                  <span>Penalización: <strong>{fine.penaltyDays} días</strong></span>
-                  <span>Hasta: <strong>{new Date(fine.penaltyUntil).toLocaleDateString("es-ES")}</strong></span>
+        <div>
+          <input type="text" placeholder="Buscar por libro o usuario..." value={fineSearch}
+            onChange={(e) => { setFineSearch(e.target.value); setFinePage(0); }}
+            className={searchClass} />
+          <p className="text-sm text-gray-500 mb-4">
+            {filteredFines.length} multas
+            {totalPages(filteredFines) > 1 && ` · Página ${finePage + 1} de ${totalPages(filteredFines)}`}
+          </p>
+          <div className="space-y-3">
+            {filteredFines.length === 0 && <p className="text-gray-400 text-center py-8">No hay multas.</p>}
+            {paginate(filteredFines, finePage).map((fine) => (
+              <div key={fine.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium text-fuchsia-700">{fine.bookTitle}</p>
+                  <p className="text-sm text-gray-600">{fine.userName}</p>
+                  <div className="flex gap-4 mt-1 text-xs text-gray-400 flex-wrap">
+                    <span>Retraso: <strong>{fine.daysOverdue} días</strong></span>
+                    <span>Penalización: <strong>{fine.penaltyDays} días</strong></span>
+                    <span>Hasta: <strong>{new Date(fine.penaltyUntil).toLocaleDateString("es-ES")}</strong></span>
+                  </div>
                 </div>
+                <button onClick={() => handleDeleteFine(fine.id)} className={btnDelete}>Anular</button>
               </div>
-              <button onClick={() => handleDeleteFine(fine.id)} className={btnDelete}>
-                Anular
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
+          <Pagination currentPage={finePage} totalPages={totalPages(filteredFines)} onPageChange={setFinePage} />
         </div>
       )}
 
+      {/* ── Reservas ── */}
       {activeTab === "Reservas" && (
-        <div className="space-y-3">
-          <p className="text-sm text-gray-500 mb-4">{reservations.length} reservas en total</p>
-          {reservations.length === 0 && <p className="text-gray-400 text-center py-8">No hay reservas.</p>}
-          {reservations.map((r) => (
-            <div key={r.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div>
-                <p className="font-medium text-fuchsia-700">{r.bookTitle}</p>
-                <p className="text-sm text-gray-600">{r.userName} — posición {r.queuePosition}</p>
-                <p className="text-xs text-gray-400 mt-1">
-                  {new Date(r.reservationDate).toLocaleDateString("es-ES")}
-                  {r.expiryDate && ` · Expira: ${new Date(r.expiryDate).toLocaleDateString("es-ES")}`}
-                </p>
+        <div>
+          <input type="text" placeholder="Buscar por libro o usuario..." value={reservationSearch}
+            onChange={(e) => { setReservationSearch(e.target.value); setReservationPage(0); }}
+            className={searchClass} />
+          <p className="text-sm text-gray-500 mb-4">
+            {filteredReservations.length} reservas
+            {totalPages(filteredReservations) > 1 && ` · Página ${reservationPage + 1} de ${totalPages(filteredReservations)}`}
+          </p>
+          <div className="space-y-3">
+            {filteredReservations.length === 0 && <p className="text-gray-400 text-center py-8">No hay reservas.</p>}
+            {paginate(filteredReservations, reservationPage).map((r) => (
+              <div key={r.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <p className="font-medium text-fuchsia-700">{r.bookTitle}</p>
+                  <p className="text-sm text-gray-600">{r.userName} — posición {r.queuePosition}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(r.reservationDate).toLocaleDateString("es-ES")}
+                    {r.expiryDate && ` · Expira: ${new Date(r.expiryDate).toLocaleDateString("es-ES")}`}
+                  </p>
+                </div>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium self-start sm:self-center ${statusReservationLabel[r.status]?.color}`}>
+                  {statusReservationLabel[r.status]?.text}
+                </span>
               </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium self-start sm:self-center ${statusReservationLabel[r.status]?.color}`}>
-                {statusReservationLabel[r.status]?.text}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
+          <Pagination currentPage={reservationPage} totalPages={totalPages(filteredReservations)} onPageChange={setReservationPage} />
         </div>
       )}
 
+      {/* ── Libros ── */}
       {activeTab === "Libros" && (
         <div>
           <div className="bg-white border border-fuchsia-100 rounded-2xl p-6 mb-6">
@@ -279,7 +378,6 @@ const AdminPage = () => {
                 value={bookForm.coverUrl} onChange={(e) => setBookForm({ ...bookForm, coverUrl: e.target.value })} />
               <input className={inputClass} type="number" placeholder="Copias totales *" required min={1}
                 value={bookForm.totalCopies} onChange={(e) => setBookForm({ ...bookForm, totalCopies: e.target.value })} />
-
               <div className="sm:col-span-2">
                 <p className="text-sm text-fuchsia-600 font-medium mb-2">Categorías *</p>
                 <div className="flex flex-wrap gap-3">
@@ -299,7 +397,6 @@ const AdminPage = () => {
                   ))}
                 </div>
               </div>
-
               <div className="sm:col-span-2 flex gap-3">
                 <button type="submit" className={btnPrimary}>
                   {editingBookId ? "Actualizar" : "Crear libro"}
@@ -314,9 +411,16 @@ const AdminPage = () => {
             </form>
           </div>
 
+          <input type="text" placeholder="Buscar por título o autor..." value={bookSearch}
+            onChange={(e) => { setBookSearch(e.target.value); setBookPage(0); }}
+            className={searchClass} />
+          <p className="text-sm text-gray-500 mb-4">
+            {filteredBooks.length} libros
+            {totalPages(filteredBooks) > 1 && ` · Página ${bookPage + 1} de ${totalPages(filteredBooks)}`}
+          </p>
           <div className="space-y-3">
-            {books.length === 0 && <p className="text-gray-400 text-center py-8">No hay libros.</p>}
-            {books.map((book) => (
+            {filteredBooks.length === 0 && <p className="text-gray-400 text-center py-8">No hay libros.</p>}
+            {paginate(filteredBooks, bookPage).map((book) => (
               <div key={book.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex items-center justify-between gap-4">
                 <div>
                   <p className="font-medium text-fuchsia-700">{book.title}</p>
@@ -335,9 +439,11 @@ const AdminPage = () => {
               </div>
             ))}
           </div>
+          <Pagination currentPage={bookPage} totalPages={totalPages(filteredBooks)} onPageChange={setBookPage} />
         </div>
       )}
 
+      {/* ── Categorías ── */}
       {activeTab === "Categorías" && (
         <div>
           <div className="bg-white border border-fuchsia-100 rounded-2xl p-6 mb-6">
@@ -363,9 +469,16 @@ const AdminPage = () => {
             </form>
           </div>
 
+          <input type="text" placeholder="Buscar categoría..." value={categorySearch}
+            onChange={(e) => { setCategorySearch(e.target.value); setCategoryPage(0); }}
+            className={searchClass} />
+          <p className="text-sm text-gray-500 mb-4">
+            {filteredCategories.length} categorías
+            {totalPages(filteredCategories) > 1 && ` · Página ${categoryPage + 1} de ${totalPages(filteredCategories)}`}
+          </p>
           <div className="space-y-3">
-            {categories.length === 0 && <p className="text-gray-400 text-center py-8">No hay categorías.</p>}
-            {categories.map((cat) => (
+            {filteredCategories.length === 0 && <p className="text-gray-400 text-center py-8">No hay categorías.</p>}
+            {paginate(filteredCategories, categoryPage).map((cat) => (
               <div key={cat.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex items-center justify-between">
                 <div>
                   <p className="font-medium text-fuchsia-700">{cat.name}</p>
@@ -379,6 +492,7 @@ const AdminPage = () => {
               </div>
             ))}
           </div>
+          <Pagination currentPage={categoryPage} totalPages={totalPages(filteredCategories)} onPageChange={setCategoryPage} />
         </div>
       )}
 
@@ -391,4 +505,3 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
-
