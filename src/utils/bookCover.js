@@ -8,7 +8,6 @@ export const getBookCover = async (isbn) => {
     const data = await response.json();
     const thumbnail = data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail;
     if (!thumbnail) return null;
-    // Mejorar calidad de la imagen
     return thumbnail.replace("zoom=1", "zoom=2").replace("http://", "https://");
   } catch {
     return null;

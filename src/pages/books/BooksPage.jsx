@@ -31,18 +31,13 @@ const BooksPage = () => {
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Filtros
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchInput, setSearchInput] = useState("");
-
-  // Paginación
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-
-  const PAGE_SIZE = 25;
+  const PAGE_SIZE = 15;
 
   const fetchBooks = useCallback(async (page = 0, titleAuthor = "", catId = "") => {
     setLoading(true);
@@ -63,18 +58,15 @@ const BooksPage = () => {
     }
   }, []);
 
-  // Cargar categorías una sola vez
   useEffect(() => {
     bookService.getCategories().then(setCategories).catch(console.error);
   }, []);
 
-  // Cargar libros cuando cambian filtros o página
   useEffect(() => {
     const cat = categories.find((c) => c.name === selectedCategory);
     fetchBooks(currentPage, search, cat?.id || "");
   }, [currentPage, search, selectedCategory, fetchBooks, categories]);
 
-  // Buscar con debounce al escribir
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearch(searchInput);
@@ -109,7 +101,6 @@ const BooksPage = () => {
     <div>
       <h1 className="text-2xl font-bold text-fuchsia-700 mb-6">Catálogo de libros</h1>
 
-      {/* Filtros */}
       <div className="flex gap-4 mb-6 flex-wrap">
         <input
           type="text"
@@ -130,7 +121,6 @@ const BooksPage = () => {
         </select>
       </div>
 
-      {/* Contador resultados */}
       {!loading && (
         <p className="text-sm text-gray-400 mb-4">
           {totalElements} {totalElements === 1 ? "libro encontrado" : "libros encontrados"}
@@ -138,7 +128,6 @@ const BooksPage = () => {
         </p>
       )}
 
-      {/* Grid */}
       {books.length === 0 ? (
         <p className="text-gray-500 text-center py-12">No se encontraron libros.</p>
       ) : (
@@ -170,7 +159,6 @@ const BooksPage = () => {
         </div>
       )}
 
-      {/* Paginación */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-10">
           <button
@@ -188,7 +176,6 @@ const BooksPage = () => {
             Anterior
           </button>
 
-          {/* Números de página */}
           {Array.from({ length: totalPages }, (_, i) => i)
             .filter((i) => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
             .reduce((acc, i, idx, arr) => {
@@ -204,8 +191,8 @@ const BooksPage = () => {
                   key={item}
                   onClick={() => setCurrentPage(item)}
                   className={`px-4 py-2 text-sm rounded-xl transition-colors ${currentPage === item
-                      ? "bg-fuchsia-500 text-white font-medium"
-                      : "border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50"
+                    ? "bg-fuchsia-500 text-white font-medium"
+                    : "border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50"
                     }`}
                 >
                   {item + 1}

@@ -17,14 +17,12 @@ const RegisterPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Registro
       await authService.register(formData.name, formData.email, formData.password);
 
-      // Login automático
       const data = await authService.login(formData.email, formData.password);
       login({ email: data.email, role: data.role, name: data.name }, data.token);
 
-      showToast(`¡Bienvenida, ${data.name}! Cuenta creada correctamente.`, "success");
+      showToast(`¡Bienvenid@, ${data.name}! Cuenta creada correctamente.`, "success");
       navigate("/");
     } catch (err) {
       showToast(err.response?.data?.message || "Error al registrarse.", "error");

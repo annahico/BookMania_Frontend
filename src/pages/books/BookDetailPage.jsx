@@ -94,7 +94,7 @@ const BookDetailPage = () => {
       </button>
 
       <div className="flex flex-col md:flex-row gap-10">
-        {/* Portada */}
+
         <div className="w-full md:w-56 flex-shrink-0">
           <div className="bg-fuchsia-50 rounded-2xl overflow-hidden aspect-[2/3] border border-fuchsia-100">
             {cover ? (
@@ -107,7 +107,6 @@ const BookDetailPage = () => {
           </div>
         </div>
 
-        {/* Info */}
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-fuchsia-700 mb-2">{book.title}</h1>
           <p className="text-lg text-gray-600 mb-4">{book.author}</p>
@@ -126,6 +125,12 @@ const BookDetailPage = () => {
               <div>
                 <p className="text-fuchsia-400 font-medium">ISBN</p>
                 <p className="text-gray-700">{book.isbn}</p>
+              </div>
+            )}
+            {book.pages && (
+              <div>
+                <p className="text-fuchsia-400 font-medium">Páginas</p>
+                <p className="text-gray-700">{book.pages}</p>
               </div>
             )}
             {book.publishYear && (

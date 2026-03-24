@@ -19,7 +19,7 @@ const LoginPage = () => {
     try {
       const data = await authService.login(formData.email, formData.password);
       login({ email: data.email, role: data.role, name: data.name }, data.token);
-      showToast(`¡Bienvenida, ${data.name}!`, "success");
+      showToast(`¡Bienvenid@, ${data.name}!`, "success");
       navigate("/");
     } catch (err) {
       showToast(err.response?.data?.message || "Email o contraseña incorrectos", "error");
