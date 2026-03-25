@@ -42,6 +42,13 @@ const mockCategories = [
   { id: 3, name: "Fantasía" },
 ];
 
+const mockPagedResponse = {
+  content: mockBooks,
+  totalPages: 1,
+  totalElements: 2,
+  number: 0,
+};
+
 const renderBooksPage = () => {
   return render(
     <MemoryRouter>
@@ -51,21 +58,16 @@ const renderBooksPage = () => {
 };
 
 describe("BooksPage", () => {
-
   beforeEach(() => {
-    bookService.getAll.mockResolvedValue(mockBooks);
-    bookService.getCategories.mockResolvedValue(mockCategories);
-  });
-
-  afterEach(() => {
     vi.clearAllMocks();
+    bookService.getAll.mockResolvedValue(mockPagedResponse);
+    bookService.getCategories.mockResolvedValue(mockCategories);
   });
 
   test("muestra el título del catálogo", async () => {
     renderBooksPage();
-    await waitFor(() => {
-      expect(screen.getByText("Catálogo de libros")).toBeInTheDocument();
-    });
+    const title = await screen.findByText("Catálogo de libros");
+    expect(title).toBeInTheDocument();
   });
 
   test("carga y muestra los libros", async () => {
@@ -96,65 +98,96 @@ describe("BooksPage", () => {
     const user = userEvent.setup();
     renderBooksPage();
 
-    await waitFor(() => {
-      expect(screen.getByText("Cien años de soledad")).toBeInTheDocument();
-    });
+    await screen.findByText("Cien años de soledad");
 
     const input = screen.getByPlaceholderText("Buscar por título o autor...");
+
+    bookService.getAll.mockResolvedValue({
+      ...mockPagedResponse,
+      content: [mockBooks[1]],
+      totalElements: 1
+    });
+
     await user.type(input, "viento");
 
-    expect(screen.queryByText("Cien años de soledad")).not.toBeInTheDocument();
-    expect(screen.getByText("El nombre del viento")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText("Cien años de soledad")).not.toBeInTheDocument();
+      expect(screen.getByText("El nombre del viento")).toBeInTheDocument();
+    }, { timeout: 2000 });
   });
 
   test("filtra libros por búsqueda de autor", async () => {
     const user = userEvent.setup();
     renderBooksPage();
 
-    await waitFor(() => {
-      expect(screen.getByText("Gabriel García Márquez")).toBeInTheDocument();
-    });
+    await screen.findByText("Gabriel García Márquez");
 
     const input = screen.getByPlaceholderText("Buscar por título o autor...");
+
+    bookService.getAll.mockResolvedValue({
+      ...mockPagedResponse,
+      content: [mockBooks[1]],
+      totalElements: 1
+    });
+
     await user.type(input, "Rothfuss");
 
-    expect(screen.queryByText("Cien años de soledad")).not.toBeInTheDocument();
-    expect(screen.getByText("El nombre del viento")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText("Cien años de soledad")).not.toBeInTheDocument();
+      expect(screen.getByText("El nombre del viento")).toBeInTheDocument();
+    });
   });
 
   test("filtra libros por categoría", async () => {
     const user = userEvent.setup();
     renderBooksPage();
 
-    await waitFor(() => {
-      expect(screen.getByText("El nombre del viento")).toBeInTheDocument();
-    });
+    await screen.findByText("El nombre del viento");
 
     const select = screen.getByRole("combobox");
+
+    bookService.getAll.mockResolvedValue({
+      ...mockPagedResponse,
+      content: [mockBooks[1]],
+      totalElements: 1
+    });
+
     await user.selectOptions(select, "Fantasía");
 
-    expect(screen.queryByText("Cien años de soledad")).not.toBeInTheDocument();
-    expect(screen.getByText("El nombre del viento")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText("Cien años de soledad")).not.toBeInTheDocument();
+      expect(screen.getByText("El nombre del viento")).toBeInTheDocument();
+    });
   });
 
   test("muestra mensaje cuando no hay resultados", async () => {
     const user = userEvent.setup();
     renderBooksPage();
 
-    await waitFor(() => {
-      expect(screen.getByText("Cien años de soledad")).toBeInTheDocument();
+    await screen.findByText("Cien años de soledad");
+
+    bookService.getAll.mockResolvedValue({
+      content: [],
+      totalPages: 0,
+      totalElements: 0,
+      number: 0,
     });
 
     const input = screen.getByPlaceholderText("Buscar por título o autor...");
-    await user.type(input, "libro que no existe xyz");
+    await user.type(input, "libro inexistente");
 
-    expect(screen.getByText("No se encontraron libros.")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("No se encontraron libros.")).toBeInTheDocument();
+    });
   });
 
   test("muestra skeleton mientras carga", () => {
     bookService.getAll.mockReturnValue(new Promise(() => { }));
     bookService.getCategories.mockReturnValue(new Promise(() => { }));
+
     renderBooksPage();
+
     expect(screen.getByText("Catálogo de libros")).toBeInTheDocument();
+    expect(screen.queryByText("Cien años de soledad")).not.toBeInTheDocument();
   });
 });

@@ -293,7 +293,6 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* ── Multas ── */}
       {activeTab === "Multas" && (
         <div>
           <input type="text" placeholder="Buscar por libro o usuario..." value={fineSearch}
@@ -324,7 +323,6 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* ── Reservas ── */}
       {activeTab === "Reservas" && (
         <div>
           <input type="text" placeholder="Buscar por libro o usuario..." value={reservationSearch}
@@ -356,7 +354,6 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* ── Libros ── */}
       {activeTab === "Libros" && (
         <div>
           <div className="bg-white border border-fuchsia-100 rounded-2xl p-6 mb-6">
@@ -443,7 +440,6 @@ const AdminPage = () => {
         </div>
       )}
 
-      {/* ── Categorías ── */}
       {activeTab === "Categorías" && (
         <div>
           <div className="bg-white border border-fuchsia-100 rounded-2xl p-6 mb-6">

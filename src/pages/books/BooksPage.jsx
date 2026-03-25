@@ -47,12 +47,14 @@ const BooksPage = () => {
       if (catId) params.categoryId = catId;
 
       const data = await bookService.getAll(params);
-      setBooks(data.content);
-      setTotalPages(data.totalPages);
-      setTotalElements(data.totalElements);
-      setCurrentPage(data.number);
+
+      setBooks(data?.content || []);
+      setTotalPages(data?.totalPages || 0);
+      setTotalElements(data?.totalElements || 0);
+      setCurrentPage(data?.number || 0);
     } catch (err) {
       console.error("Error cargando libros:", err);
+      setBooks([]); 
     } finally {
       setLoading(false);
     }
