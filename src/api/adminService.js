@@ -16,6 +16,11 @@ const adminService = {
         return response.data;
     },
 
+    returnLoan: async (id) => {
+        const response = await axiosInstance.put(`/api/loans/${id}/return`);
+        return response.data;
+    },
+
     createBook: async (bookData) => {
         const response = await axiosInstance.post("/api/books", bookData);
         return response.data;

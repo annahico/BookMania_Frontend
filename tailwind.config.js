@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        fuchsia: {
+        pink: {
           50: "#fff5f9",
           100: "#ffe8f2",
           200: "#ffd1e6",
