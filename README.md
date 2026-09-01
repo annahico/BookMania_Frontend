@@ -162,6 +162,26 @@ npm run dev
 
 ---
 
+## 🚢 Deploying to Railway
+
+The frontend ships with a `Dockerfile` and `railway.json`: the build stage runs `npm run build`
+and the run stage serves the static `dist/` output with [`serve`](https://www.npmjs.com/package/serve)
+(`-s` enables the SPA fallback that `BrowserRouter` needs).
+
+1. Deploy the backend first (see its own README) and grab its public URL, e.g.
+   `https://bookmania-backend.up.railway.app`.
+2. Create a new Railway service from this repo.
+3. In the service's **Variables** tab, set `VITE_API_URL` to that backend URL.
+   > Vite bakes `VITE_*` variables into the bundle **at build time** — Railway passes service
+   > Variables to the Docker build as build args automatically, and the `Dockerfile` declares
+   > `ARG VITE_API_URL` to receive it. Setting it only after the image is built has no effect;
+   > a redeploy is needed whenever this value changes.
+4. Deploy. Railway builds the `Dockerfile` and serves the app on the `PORT` it assigns.
+5. Go back to the backend service and set its `CORS_ALLOWED_ORIGINS` variable to this frontend's
+   Railway URL, then redeploy the backend — otherwise the browser will block the API calls.
+
+---
+
 ## 🔌 Connecting Frontend to Backend
 
 The frontend connects to the backend via Axios. The base URL is set in `.env` and the JWT token is automatically attached to every authenticated request via an interceptor:
@@ -377,6 +397,27 @@ npm run dev
 ```
 
 > App disponible en `http://localhost:5173`
+
+---
+
+## 🚢 Despliegue en Railway
+
+El frontend incluye un `Dockerfile` y un `railway.json`: la etapa de build ejecuta `npm run build`
+y la etapa de ejecución sirve el `dist/` estático con [`serve`](https://www.npmjs.com/package/serve)
+(`-s` activa el fallback SPA que necesita `BrowserRouter`).
+
+1. Despliega primero el backend (ver su propio README) y copia su URL pública, p. ej.
+   `https://bookmania-backend.up.railway.app`.
+2. Crea un servicio nuevo en Railway a partir de este repo.
+3. En la pestaña **Variables** del servicio, configura `VITE_API_URL` con esa URL del backend.
+   > Vite incrusta las variables `VITE_*` en el bundle **en tiempo de build** — Railway pasa las
+   > Variables del servicio al build de Docker como build args automáticamente, y el `Dockerfile`
+   > declara `ARG VITE_API_URL` para recibirla. Configurarla después de construir la imagen no
+   > tiene efecto; hay que redesplegar cada vez que cambie este valor.
+4. Despliega. Railway construye el `Dockerfile` y sirve la app en el `PORT` que asigne.
+5. Vuelve al servicio del backend y configura su variable `CORS_ALLOWED_ORIGINS` con la URL de
+   este frontend en Railway, y redespliega el backend — si no, el navegador bloqueará las
+   peticiones a la API por CORS.
 
 ---
 
