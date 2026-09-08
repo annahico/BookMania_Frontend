@@ -37,7 +37,7 @@ const MyFinesPage = () => {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div>
         <div className="h-8 bg-pink-100 dark:bg-slate-800 rounded w-48 mb-6 animate-pulse" />
         <div className="space-y-3">
           {Array.from({ length: 2 }).map((_, i) => (
@@ -52,7 +52,7 @@ const MyFinesPage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div>
       <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-2">{t("fines.title")}</h1>
       <p className="text-gray-500 dark:text-slate-400 text-sm mb-6">
         {t("fines.subtitle")}
@@ -61,7 +61,7 @@ const MyFinesPage = () => {
       <label htmlFor="fines-search" className="sr-only">{t("fines.searchLabel")}</label>
       <input id="fines-search" type="text" placeholder={t("fines.searchPlaceholder")} value={search}
         onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-        className="border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 w-full mb-3" />
+        className="border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 w-full max-w-2xl mb-3" />
       <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
         {t("fines.count", { count: filtered.length })}
         {totalPages > 1 && ` · ${t("fines.pageOf", { current: page + 1, total: totalPages })}`}
@@ -73,7 +73,7 @@ const MyFinesPage = () => {
           <p className="text-pink-700 dark:text-pink-400 text-sm mt-1">{t("fines.noneSubtitle")}</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {paginated.map((fine) => {
             const isActive = fine.penaltyDaysRemaining > 0;
             return (

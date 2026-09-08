@@ -220,14 +220,14 @@ const AdminPage = () => {
   }
 
   const inputClass = "border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 w-full";
-  const searchClass = "border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 w-full mb-4";
+  const searchClass = "border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 w-full max-w-2xl mb-4";
   const btnPrimary = "bg-pink-700 hover:bg-pink-800 dark:bg-pink-600 dark:hover:bg-pink-500 text-white font-medium px-6 py-2 rounded-xl text-sm transition-colors";
   const btnSecondary = "border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 px-6 py-2 rounded-xl text-sm transition-colors";
   const btnEdit = "text-sm border border-pink-400 dark:border-pink-800 text-pink-700 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-slate-700 px-3 py-1.5 rounded-xl transition-colors";
   const btnDelete = "text-sm border border-red-400 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 px-3 py-1.5 rounded-xl transition-colors";
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div>
       <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-6">{t("admin.title")}</h1>
 
       <div role="tablist" aria-label={t("admin.title")} className="flex gap-2 mb-8 border-b border-pink-100 dark:border-slate-700 overflow-x-auto">
@@ -252,8 +252,8 @@ const AdminPage = () => {
             {t("admin.loans.count", { count: filteredLoans.length })}
             {totalPages(filteredLoans) > 1 && ` · ${t("loans.pageOf", { current: loanPage + 1, total: totalPages(filteredLoans) })}`}
           </p>
-          <div className="space-y-3">
-            {filteredLoans.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8">{t("admin.loans.noResults")}</p>}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {filteredLoans.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8 lg:col-span-2">{t("admin.loans.noResults")}</p>}
             {paginate(filteredLoans, loanPage).map((loan) => (
               <div key={loan.id} className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
@@ -290,8 +290,8 @@ const AdminPage = () => {
             {t("admin.fines.count", { count: filteredFines.length })}
             {totalPages(filteredFines) > 1 && ` · ${t("loans.pageOf", { current: finePage + 1, total: totalPages(filteredFines) })}`}
           </p>
-          <div className="space-y-3">
-            {filteredFines.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8">{t("admin.fines.noResults")}</p>}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {filteredFines.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8 lg:col-span-2">{t("admin.fines.noResults")}</p>}
             {paginate(filteredFines, finePage).map((fine) => (
               <div key={fine.id} className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between gap-4">
                 <div>
@@ -321,8 +321,8 @@ const AdminPage = () => {
             {t("admin.reservations.count", { count: filteredReservations.length })}
             {totalPages(filteredReservations) > 1 && ` · ${t("loans.pageOf", { current: reservationPage + 1, total: totalPages(filteredReservations) })}`}
           </p>
-          <div className="space-y-3">
-            {filteredReservations.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8">{t("admin.reservations.noResults")}</p>}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {filteredReservations.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8 lg:col-span-2">{t("admin.reservations.noResults")}</p>}
             {paginate(filteredReservations, reservationPage).map((r) => (
               <div key={r.id} className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
@@ -405,8 +405,8 @@ const AdminPage = () => {
             {t("admin.books.count", { count: filteredBooks.length })}
             {totalPages(filteredBooks) > 1 && ` · ${t("loans.pageOf", { current: bookPage + 1, total: totalPages(filteredBooks) })}`}
           </p>
-          <div className="space-y-3">
-            {filteredBooks.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8">{t("admin.books.noResults")}</p>}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {filteredBooks.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8 lg:col-span-2">{t("admin.books.noResults")}</p>}
             {paginate(filteredBooks, bookPage).map((book) => (
               <div key={book.id} className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between gap-4">
                 <div>
@@ -463,8 +463,8 @@ const AdminPage = () => {
             {t("admin.categories.count", { count: filteredCategories.length })}
             {totalPages(filteredCategories) > 1 && ` · ${t("loans.pageOf", { current: categoryPage + 1, total: totalPages(filteredCategories) })}`}
           </p>
-          <div className="space-y-3">
-            {filteredCategories.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8">{t("admin.categories.noResults")}</p>}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {filteredCategories.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8 lg:col-span-2">{t("admin.categories.noResults")}</p>}
             {paginate(filteredCategories, categoryPage).map((cat) => (
               <div key={cat.id} className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between">
                 <div>
