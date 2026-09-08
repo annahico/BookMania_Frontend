@@ -146,13 +146,13 @@ const BooksPage = () => {
         </select>
       </div>
 
-      <p className="text-sm text-gray-400 dark:text-slate-500 mb-4" role="status" aria-live="polite">
+      <p className="text-sm text-gray-600 dark:text-slate-300 mb-4" role="status" aria-live="polite">
         {t("books.resultsCount", { count: totalElements })}
         {totalPages > 1 && ` · ${t("books.pageOf", { current: currentPage + 1, total: totalPages })}`}
       </p>
 
       {books.length === 0 ? (
-        <p className="text-gray-500 dark:text-slate-400 text-center py-12">{t("books.noResults")}</p>
+        <p className="text-gray-600 dark:text-slate-400 text-center py-12">{t("books.noResults")}</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-6">
           {books.map((book) => (
@@ -161,7 +161,7 @@ const BooksPage = () => {
               <h3 className="text-sm font-medium text-gray-900 dark:text-slate-100 line-clamp-2 group-hover:text-pink-800 dark:group-hover:text-pink-400 transition-colors">
                 {book.title}
               </h3>
-              <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{book.author}</p>
+              <p className="text-xs text-gray-600 dark:text-slate-400 mt-0.5">{book.author}</p>
               <div className="flex flex-wrap gap-1 mt-1">
                 {book.categories?.map((cat) => (
                   <span key={cat} className="text-xs bg-pink-50 dark:bg-pink-950 text-pink-700 dark:text-pink-300 px-1.5 py-0.5 rounded-full border border-pink-100 dark:border-pink-900">
@@ -171,9 +171,9 @@ const BooksPage = () => {
               </div>
               <div className="mt-1">
                 {book.availableCopies > 0 ? (
-                  <span className="text-xs text-green-600 dark:text-green-400 font-medium">{t("books.available")}</span>
+                  <span className="text-xs text-green-700 dark:text-green-400 font-medium">{t("books.available")}</span>
                 ) : (
-                  <span className="text-xs text-red-500 dark:text-red-400 font-medium">{t("books.unavailable")}</span>
+                  <span className="text-xs text-red-700 dark:text-red-400 font-medium">{t("books.unavailable")}</span>
                 )}
               </div>
             </Link>

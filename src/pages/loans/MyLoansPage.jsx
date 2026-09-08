@@ -108,13 +108,13 @@ const MyLoansPage = () => {
           <option value="RETURNED">{t("loans.statusReturned")}</option>
         </select>
       </div>
-      <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+      <p className="text-sm text-gray-600 dark:text-slate-400 mb-4">
         {t("loans.count", { count: filtered.length })}
         {totalPages > 1 && ` · ${t("loans.pageOf", { current: page + 1, total: totalPages })}`}
       </p>
 
       {paginated.length === 0 ? (
-        <p className="text-gray-500 dark:text-slate-400 text-center py-12">{t("loans.noResults")}</p>
+        <p className="text-gray-600 dark:text-slate-400 text-center py-12">{t("loans.noResults")}</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {paginated.map((loan) => (
@@ -126,16 +126,16 @@ const MyLoansPage = () => {
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusLabel[loan.status]?.color}`}>
                     {statusLabel[loan.status]?.text}
                   </span>
-                  <span className="text-xs text-gray-500 dark:text-slate-400">
+                  <span className="text-xs text-gray-600 dark:text-slate-400">
                     {t("loans.due", { date: new Date(loan.dueDate).toLocaleDateString(i18n.language) })}
                   </span>
                   {loan.returnDate && (
-                    <span className="text-xs text-gray-500 dark:text-slate-400">
+                    <span className="text-xs text-gray-600 dark:text-slate-400">
                       {t("loans.returned", { date: new Date(loan.returnDate).toLocaleDateString(i18n.language) })}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">{t("loans.extensionsUsed", { count: loan.extensionsUsed })}</p>
+                <p className="text-xs text-gray-600 dark:text-slate-300 mt-1">{t("loans.extensionsUsed", { count: loan.extensionsUsed })}</p>
               </div>
               {loan.status !== "RETURNED" && (
                 <div className="flex gap-2">

@@ -26,7 +26,7 @@ class ErrorBoundary extends Component {
         <div className="min-h-screen bg-cream-100 dark:bg-slate-900 flex items-center justify-center px-4">
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md w-full max-w-md p-8 border border-pink-100 dark:border-slate-700 text-center">
             <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-2">{i18n.t("errorBoundary.title")}</h1>
-            <p className="text-gray-500 dark:text-slate-400 mb-6">
+            <p className="text-gray-600 dark:text-slate-400 mb-6">
               {i18n.t("errorBoundary.message")}
             </p>
             <button onClick={this.handleReload}

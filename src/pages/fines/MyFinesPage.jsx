@@ -54,7 +54,7 @@ const MyFinesPage = () => {
   return (
     <div>
       <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-2">{t("fines.title")}</h1>
-      <p className="text-gray-500 dark:text-slate-400 text-sm mb-6">
+      <p className="text-gray-600 dark:text-slate-400 text-sm mb-6">
         {t("fines.subtitle")}
       </p>
 
@@ -62,7 +62,7 @@ const MyFinesPage = () => {
       <input id="fines-search" type="text" placeholder={t("fines.searchPlaceholder")} value={search}
         onChange={(e) => { setSearch(e.target.value); setPage(0); }}
         className="border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 w-full max-w-2xl mb-3" />
-      <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+      <p className="text-sm text-gray-600 dark:text-slate-400 mb-4">
         {t("fines.count", { count: filtered.length })}
         {totalPages > 1 && ` · ${t("fines.pageOf", { current: page + 1, total: totalPages })}`}
       </p>
@@ -82,7 +82,7 @@ const MyFinesPage = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
                     <h3 className="font-semibold text-pink-700 dark:text-pink-400">{fine.bookTitle}</h3>
-                    <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-500 dark:text-slate-400">
+                    <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-600 dark:text-slate-400">
                       <span>{t("fines.daysOverdue", { count: fine.daysOverdue })}</span>
                       <span>{t("fines.penaltyDays", { count: fine.penaltyDays })}</span>
                       <span>{t("fines.blockedUntil", { date: new Date(fine.penaltyUntil).toLocaleDateString(i18n.language) })}</span>
@@ -95,7 +95,7 @@ const MyFinesPage = () => {
                     </div>
                   ) : (
                     <div className="flex-shrink-0 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl px-4 py-2 text-center">
-                      <p className="text-gray-500 dark:text-slate-400 text-xs">{t("fines.penaltyFulfilledLabel")}</p>
+                      <p className="text-gray-600 dark:text-slate-400 text-xs">{t("fines.penaltyFulfilledLabel")}</p>
                       <p className="text-gray-600 dark:text-slate-300 font-medium text-sm">{t("fines.penaltyFulfilled")}</p>
                     </div>
                   )}
