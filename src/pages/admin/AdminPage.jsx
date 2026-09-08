@@ -26,9 +26,9 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   return (
     <div className="flex items-center justify-center gap-2 mt-6">
       <button onClick={() => onPageChange(0)} disabled={currentPage === 0}
-        className="px-3 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">«</button>
+        className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">«</button>
       <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}
-        className="px-4 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">Anterior</button>
+        className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">Anterior</button>
       {Array.from({ length: totalPages }, (_, i) => i)
         .filter((i) => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
         .reduce((acc, i, idx, arr) => {
@@ -42,16 +42,16 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           ) : (
             <button key={item} onClick={() => onPageChange(item)}
               className={`px-4 py-2 text-sm rounded-xl transition-colors ${currentPage === item
-                ? "bg-fuchsia-500 text-white font-medium"
-                : "border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50"}`}>
+                ? "bg-pink-700 text-white font-medium"
+                : "border border-pink-200 text-pink-700 hover:bg-pink-50"}`}>
               {item + 1}
             </button>
           )
         )}
       <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages - 1}
-        className="px-4 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">Siguiente</button>
+        className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">Siguiente</button>
       <button onClick={() => onPageChange(totalPages - 1)} disabled={currentPage === totalPages - 1}
-        className="px-3 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">»</button>
+        className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">»</button>
     </div>
   );
 };
@@ -234,28 +234,28 @@ const AdminPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-fuchsia-400">Cargando panel de administración...</p>
+        <p className="text-pink-700">Cargando panel de administración...</p>
       </div>
     );
   }
 
-  const inputClass = "border border-fuchsia-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white w-full";
-  const searchClass = "border border-fuchsia-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white w-full mb-4";
-  const btnPrimary = "bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-medium px-6 py-2 rounded-xl text-sm transition-colors";
+  const inputClass = "border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white w-full";
+  const searchClass = "border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white w-full mb-4";
+  const btnPrimary = "bg-pink-700 hover:bg-pink-800 text-white font-medium px-6 py-2 rounded-xl text-sm transition-colors";
   const btnSecondary = "border border-gray-300 text-gray-600 hover:bg-gray-50 px-6 py-2 rounded-xl text-sm transition-colors";
-  const btnEdit = "text-sm border border-fuchsia-400 text-fuchsia-600 hover:bg-fuchsia-50 px-3 py-1.5 rounded-xl transition-colors";
+  const btnEdit = "text-sm border border-pink-400 text-pink-700 hover:bg-pink-50 px-3 py-1.5 rounded-xl transition-colors";
   const btnDelete = "text-sm border border-red-400 text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-xl transition-colors";
 
   return (
     <div className="max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-fuchsia-700 mb-6">Panel de administración</h1>
+      <h1 className="text-2xl font-bold text-pink-700 mb-6">Panel de administración</h1>
 
-      <div className="flex gap-2 mb-8 border-b border-fuchsia-100 overflow-x-auto">
+      <div className="flex gap-2 mb-8 border-b border-pink-100 overflow-x-auto">
         {TABS.map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab
-              ? "border-fuchsia-500 text-fuchsia-600"
-              : "border-transparent text-gray-500 hover:text-fuchsia-500"}`}>
+              ? "border-pink-700 text-pink-700"
+              : "border-transparent text-gray-500 hover:text-pink-700"}`}>
             {tab}
           </button>
         ))}
@@ -274,9 +274,9 @@ const AdminPage = () => {
           <div className="space-y-3">
             {filteredLoans.length === 0 && <p className="text-gray-400 text-center py-8">No hay préstamos.</p>}
             {paginate(filteredLoans, loanPage).map((loan) => (
-              <div key={loan.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div key={loan.id} className="bg-white border border-pink-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                  <p className="font-medium text-fuchsia-700">{loan.bookTitle}</p>
+                  <p className="font-medium text-pink-700">{loan.bookTitle}</p>
                   <p className="text-sm text-gray-600">{loan.userName}</p>
                   <div className="flex gap-3 mt-1 text-xs text-gray-400 flex-wrap">
                     <span>Vence: {new Date(loan.dueDate).toLocaleDateString("es-ES")}</span>
@@ -306,9 +306,9 @@ const AdminPage = () => {
           <div className="space-y-3">
             {filteredFines.length === 0 && <p className="text-gray-400 text-center py-8">No hay multas.</p>}
             {paginate(filteredFines, finePage).map((fine) => (
-              <div key={fine.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+              <div key={fine.id} className="bg-white border border-pink-100 rounded-2xl p-4 flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-medium text-fuchsia-700">{fine.bookTitle}</p>
+                  <p className="font-medium text-pink-700">{fine.bookTitle}</p>
                   <p className="text-sm text-gray-600">{fine.userName}</p>
                   <div className="flex gap-4 mt-1 text-xs text-gray-400 flex-wrap">
                     <span>Retraso: <strong>{fine.daysOverdue} días</strong></span>
@@ -336,9 +336,9 @@ const AdminPage = () => {
           <div className="space-y-3">
             {filteredReservations.length === 0 && <p className="text-gray-400 text-center py-8">No hay reservas.</p>}
             {paginate(filteredReservations, reservationPage).map((r) => (
-              <div key={r.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div key={r.id} className="bg-white border border-pink-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                  <p className="font-medium text-fuchsia-700">{r.bookTitle}</p>
+                  <p className="font-medium text-pink-700">{r.bookTitle}</p>
                   <p className="text-sm text-gray-600">{r.userName} — posición {r.queuePosition}</p>
                   <p className="text-xs text-gray-400 mt-1">
                     {new Date(r.reservationDate).toLocaleDateString("es-ES")}
@@ -357,8 +357,8 @@ const AdminPage = () => {
 
       {activeTab === "Libros" && (
         <div>
-          <div className="bg-white border border-fuchsia-100 rounded-2xl p-6 mb-6">
-            <h2 className="font-semibold text-fuchsia-700 mb-4">
+          <div className="bg-white border border-pink-100 rounded-2xl p-6 mb-6">
+            <h2 className="font-semibold text-pink-700 mb-4">
               {editingBookId ? "Editar libro" : "Añadir nuevo libro"}
             </h2>
             <form onSubmit={handleBookSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -377,7 +377,7 @@ const AdminPage = () => {
               <input className={inputClass} type="number" placeholder="Copias totales *" required min={1}
                 value={bookForm.totalCopies} onChange={(e) => setBookForm({ ...bookForm, totalCopies: e.target.value })} />
               <div className="sm:col-span-2">
-                <p className="text-sm text-fuchsia-600 font-medium mb-2">Categorías *</p>
+                <p className="text-sm text-pink-700 font-medium mb-2">Categorías *</p>
                 <div className="flex flex-wrap gap-3">
                   {categories.map((cat) => (
                     <label key={cat.id} className="flex items-center gap-1.5 cursor-pointer">
@@ -389,7 +389,7 @@ const AdminPage = () => {
                           } else {
                             setBookForm({ ...bookForm, categoryIds: bookForm.categoryIds.filter((id) => id !== cat.id) });
                           }
-                        }} className="rounded accent-fuchsia-500" />
+                        }} className="rounded accent-pink-600" />
                       <span className="text-sm text-gray-700">{cat.name}</span>
                     </label>
                   ))}
@@ -419,13 +419,13 @@ const AdminPage = () => {
           <div className="space-y-3">
             {filteredBooks.length === 0 && <p className="text-gray-400 text-center py-8">No hay libros.</p>}
             {paginate(filteredBooks, bookPage).map((book) => (
-              <div key={book.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+              <div key={book.id} className="bg-white border border-pink-100 rounded-2xl p-4 flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-medium text-fuchsia-700">{book.title}</p>
+                  <p className="font-medium text-pink-700">{book.title}</p>
                   <p className="text-sm text-gray-500">{book.author}</p>
                   <div className="flex gap-2 mt-1 flex-wrap">
                     {book.categories?.map((cat) => (
-                      <span key={cat} className="text-xs bg-fuchsia-50 text-fuchsia-600 border border-fuchsia-100 px-2 py-0.5 rounded-full">{cat}</span>
+                      <span key={cat} className="text-xs bg-pink-50 text-pink-700 border border-pink-100 px-2 py-0.5 rounded-full">{cat}</span>
                     ))}
                   </div>
                   <p className="text-xs text-gray-400 mt-1">Copias: {book.availableCopies}/{book.totalCopies}</p>
@@ -443,17 +443,17 @@ const AdminPage = () => {
 
       {activeTab === "Categorías" && (
         <div>
-          <div className="bg-white border border-fuchsia-100 rounded-2xl p-6 mb-6">
-            <h2 className="font-semibold text-fuchsia-700 mb-4">
+          <div className="bg-white border border-pink-100 rounded-2xl p-6 mb-6">
+            <h2 className="font-semibold text-pink-700 mb-4">
               {editingCategoryId ? "Editar categoría" : "Nueva categoría"}
             </h2>
             <form onSubmit={handleCategorySubmit} className="flex gap-3 flex-wrap">
               <input type="text" placeholder="Nombre *" required value={categoryForm.name}
                 onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                className="flex-1 min-w-[150px] border border-fuchsia-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white" />
+                className="flex-1 min-w-[150px] border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white" />
               <input type="text" placeholder="Descripción" value={categoryForm.description}
                 onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
-                className="flex-1 min-w-[150px] border border-fuchsia-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white" />
+                className="flex-1 min-w-[150px] border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white" />
               <button type="submit" className={btnPrimary}>
                 {editingCategoryId ? "Actualizar" : "Crear"}
               </button>
@@ -476,9 +476,9 @@ const AdminPage = () => {
           <div className="space-y-3">
             {filteredCategories.length === 0 && <p className="text-gray-400 text-center py-8">No hay categorías.</p>}
             {paginate(filteredCategories, categoryPage).map((cat) => (
-              <div key={cat.id} className="bg-white border border-fuchsia-100 rounded-2xl p-4 flex items-center justify-between">
+              <div key={cat.id} className="bg-white border border-pink-100 rounded-2xl p-4 flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-fuchsia-700">{cat.name}</p>
+                  <p className="font-medium text-pink-700">{cat.name}</p>
                   {cat.description && <p className="text-sm text-gray-500">{cat.description}</p>}
                 </div>
                 <div className="flex gap-2">

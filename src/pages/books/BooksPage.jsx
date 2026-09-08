@@ -13,12 +13,12 @@ const BookCover = ({ isbn, title, coverUrl }) => {
   }, [isbn, coverUrl]);
 
   return (
-    <div className="bg-fuchsia-50 rounded-xl overflow-hidden aspect-[2/3] mb-3 border border-fuchsia-100">
+    <div className="bg-pink-50 rounded-xl overflow-hidden aspect-[2/3] mb-3 border border-pink-100">
       {cover ? (
         <img src={cover} alt={title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
       ) : (
-        <div className="w-full h-full flex items-center justify-center text-fuchsia-300 text-sm text-center p-4">
+        <div className="w-full h-full flex items-center justify-center text-pink-700 text-sm text-center p-4">
           Sin portada
         </div>
       )}
@@ -85,13 +85,13 @@ const BooksPage = () => {
   if (loading) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-fuchsia-700 mb-6">Catálogo de libros</h1>
+        <h1 className="text-2xl font-bold text-pink-700 mb-6">Catálogo de libros</h1>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {Array.from({ length: 10 }).map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="bg-fuchsia-100 rounded-xl aspect-[2/3] mb-3" />
-              <div className="bg-fuchsia-100 rounded h-3 mb-1.5" />
-              <div className="bg-fuchsia-100 rounded h-3 w-2/3" />
+              <div className="bg-pink-100 rounded-xl aspect-[2/3] mb-3" />
+              <div className="bg-pink-100 rounded h-3 mb-1.5" />
+              <div className="bg-pink-100 rounded h-3 w-2/3" />
             </div>
           ))}
         </div>
@@ -101,7 +101,7 @@ const BooksPage = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-fuchsia-700 mb-6">Catálogo de libros</h1>
+      <h1 className="text-2xl font-bold text-pink-700 mb-6">Catálogo de libros</h1>
 
       <div className="flex gap-4 mb-6 flex-wrap">
         <input
@@ -109,12 +109,12 @@ const BooksPage = () => {
           placeholder="Buscar por título o autor..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          className="flex-1 min-w-[200px] border border-fuchsia-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white"
+          className="flex-1 min-w-[200px] border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white"
         />
         <select
           value={selectedCategory}
           onChange={handleCategoryChange}
-          className="border border-fuchsia-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white"
+          className="border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white"
         >
           <option value="">Todas las categorías</option>
           {categories.map((cat) => (
@@ -138,13 +138,13 @@ const BooksPage = () => {
             <div key={book.id} onClick={() => navigate(`/books/${book.id}`)}
               className="cursor-pointer group">
               <BookCover isbn={book.isbn} title={book.title} coverUrl={book.coverUrl} />
-              <h3 className="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-fuchsia-600 transition-colors">
+              <h3 className="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-pink-800 transition-colors">
                 {book.title}
               </h3>
               <p className="text-xs text-gray-500 mt-0.5">{book.author}</p>
               <div className="flex flex-wrap gap-1 mt-1">
                 {book.categories?.map((cat) => (
-                  <span key={cat} className="text-xs bg-fuchsia-50 text-fuchsia-600 px-1.5 py-0.5 rounded-full border border-fuchsia-100">
+                  <span key={cat} className="text-xs bg-pink-50 text-pink-700 px-1.5 py-0.5 rounded-full border border-pink-100">
                     {cat}
                   </span>
                 ))}
@@ -166,14 +166,14 @@ const BooksPage = () => {
           <button
             onClick={() => setCurrentPage(0)}
             disabled={currentPage === 0}
-            className="px-3 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             «
           </button>
           <button
             onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
             disabled={currentPage === 0}
-            className="px-4 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             Anterior
           </button>
@@ -193,8 +193,8 @@ const BooksPage = () => {
                   key={item}
                   onClick={() => setCurrentPage(item)}
                   className={`px-4 py-2 text-sm rounded-xl transition-colors ${currentPage === item
-                    ? "bg-fuchsia-500 text-white font-medium"
-                    : "border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50"
+                    ? "bg-pink-700 text-white font-medium"
+                    : "border border-pink-200 text-pink-700 hover:bg-pink-50"
                     }`}
                 >
                   {item + 1}
@@ -205,14 +205,14 @@ const BooksPage = () => {
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
             disabled={currentPage === totalPages - 1}
-            className="px-4 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             Siguiente
           </button>
           <button
             onClick={() => setCurrentPage(totalPages - 1)}
             disabled={currentPage === totalPages - 1}
-            className="px-3 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             »
           </button>
