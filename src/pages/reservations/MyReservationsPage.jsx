@@ -1,7 +1,7 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import reservationService from "../../api/reservationService";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import Pagination from "../../components/common/Pagination";
 import useToast from "../../hooks/useToast";
 
 const PAGE_SIZE = 15;
@@ -11,41 +11,6 @@ const statusLabel = {
   FULFILLED: { text: "Cumplida", color: "bg-green-100 text-green-700" },
   CANCELLED: { text: "Cancelada", color: "bg-gray-100 text-gray-600" },
   EXPIRED: { text: "Expirada", color: "bg-red-100 text-red-700" },
-};
-
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-  return (
-    <div className="flex items-center justify-center gap-2 mt-6">
-      <button onClick={() => onPageChange(0)} disabled={currentPage === 0}
-        className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">«</button>
-      <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}
-        className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">Anterior</button>
-      {Array.from({ length: totalPages }, (_, i) => i)
-        .filter((i) => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
-        .reduce((acc, i, idx, arr) => {
-          if (idx > 0 && i - arr[idx - 1] > 1) acc.push("...");
-          acc.push(i);
-          return acc;
-        }, [])
-        .map((item, idx) =>
-          item === "..." ? (
-            <span key={`dots-${idx}`} className="px-2 text-gray-400">...</span>
-          ) : (
-            <button key={item} onClick={() => onPageChange(item)}
-              className={`px-4 py-2 text-sm rounded-xl transition-colors ${currentPage === item
-                ? "bg-pink-700 text-white font-medium"
-                : "border border-pink-200 text-pink-700 hover:bg-pink-50"}`}>
-              {item + 1}
-            </button>
-          )
-        )}
-      <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages - 1}
-        className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">Siguiente</button>
-      <button onClick={() => onPageChange(totalPages - 1)} disabled={currentPage === totalPages - 1}
-        className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">»</button>
-    </div>
-  );
 };
 
 const MyReservationsPage = () => {
@@ -64,7 +29,7 @@ const MyReservationsPage = () => {
     try {
       const data = await reservationService.getMyReservations();
       setReservations(data);
-    } catch (err) {
+    } catch {
       showToast("Error cargando reservas", "error");
     } finally {
       setLoading(false);
@@ -115,10 +80,12 @@ const MyReservationsPage = () => {
       <h1 className="text-2xl font-bold text-pink-700 mb-6">Mis reservas</h1>
 
       <div className="flex gap-2 mb-3">
-        <input type="text" placeholder="Buscar por título..." value={search}
+        <label htmlFor="reservations-search" className="sr-only">Buscar por título</label>
+        <input id="reservations-search" type="text" placeholder="Buscar por título..." value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(0); }}
           className="border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white flex-1" />
-        <select value={statusFilter}
+        <label htmlFor="reservations-status" className="sr-only">Filtrar por estado</label>
+        <select id="reservations-status" value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
           className="border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white text-gray-600">
           <option value="ALL">Todos</option>

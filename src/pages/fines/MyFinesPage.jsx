@@ -1,62 +1,30 @@
 import { useState, useEffect } from "react";
 import fineService from "../../api/fineService";
+import Pagination from "../../components/common/Pagination";
+import useToast from "../../hooks/useToast";
 
 const PAGE_SIZE = 15;
-
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-  return (
-    <div className="flex items-center justify-center gap-2 mt-6">
-      <button onClick={() => onPageChange(0)} disabled={currentPage === 0}
-        className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">«</button>
-      <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}
-        className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">Anterior</button>
-      {Array.from({ length: totalPages }, (_, i) => i)
-        .filter((i) => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
-        .reduce((acc, i, idx, arr) => {
-          if (idx > 0 && i - arr[idx - 1] > 1) acc.push("...");
-          acc.push(i);
-          return acc;
-        }, [])
-        .map((item, idx) =>
-          item === "..." ? (
-            <span key={`dots-${idx}`} className="px-2 text-gray-400">...</span>
-          ) : (
-            <button key={item} onClick={() => onPageChange(item)}
-              className={`px-4 py-2 text-sm rounded-xl transition-colors ${currentPage === item
-                ? "bg-pink-700 text-white font-medium"
-                : "border border-pink-200 text-pink-700 hover:bg-pink-50"}`}>
-              {item + 1}
-            </button>
-          )
-        )}
-      <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages - 1}
-        className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">Siguiente</button>
-      <button onClick={() => onPageChange(totalPages - 1)} disabled={currentPage === totalPages - 1}
-        className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">»</button>
-    </div>
-  );
-};
 
 const MyFinesPage = () => {
   const [fines, setFines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const fetchFines = async () => {
       try {
         const data = await fineService.getMyFines();
         setFines(data);
-      } catch (err) {
-        console.error("Error cargando multas:", err);
+      } catch {
+        showToast("Error cargando multas", "error");
       } finally {
         setLoading(false);
       }
     };
     fetchFines();
-  }, []);
+  }, [showToast]);
 
   const filtered = fines.filter((f) =>
     f.bookTitle?.toLowerCase().includes(search.toLowerCase())
@@ -87,7 +55,8 @@ const MyFinesPage = () => {
         Las multas son penalizaciones temporales que te impiden hacer reservas.
       </p>
 
-      <input type="text" placeholder="Buscar por título..." value={search}
+      <label htmlFor="fines-search" className="sr-only">Buscar por título</label>
+      <input id="fines-search" type="text" placeholder="Buscar por título..." value={search}
         onChange={(e) => { setSearch(e.target.value); setPage(0); }}
         className="border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white w-full mb-3" />
       <p className="text-sm text-gray-500 mb-4">
