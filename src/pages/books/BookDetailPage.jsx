@@ -24,23 +24,26 @@ const BookDetailPage = () => {
   const [reservationDone, setReservationDone] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchBook = async () => {
       try {
         const data = await bookService.getById(id);
+        if (cancelled) return;
         setBook(data);
         if (!data.coverUrl || data.coverUrl.includes("ejemplo.com")) {
           const url = await getBookCover(data.isbn);
-          setCover(url);
+          if (!cancelled) setCover(url);
         } else {
           setCover(data.coverUrl);
         }
       } catch (err) {
-        setError("No se pudo cargar el libro.");
+        if (!cancelled) setError("No se pudo cargar el libro.");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     fetchBook();
+    return () => { cancelled = true; };
   }, [id]);
 
   const handleLoan = async () => {

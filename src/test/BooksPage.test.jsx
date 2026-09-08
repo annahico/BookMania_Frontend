@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
 import BooksPage from "../pages/books/BooksPage";
 import bookService from "../api/bookService";
+import ToastProvider from "../context/ToastProvider";
 
 vi.mock("../api/bookService");
 
@@ -52,7 +53,9 @@ const mockPagedResponse = {
 const renderBooksPage = () => {
   return render(
     <MemoryRouter>
-      <BooksPage />
+      <ToastProvider>
+        <BooksPage />
+      </ToastProvider>
     </MemoryRouter>
   );
 };

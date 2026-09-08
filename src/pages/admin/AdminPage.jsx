@@ -1,8 +1,8 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import adminService from "../../api/adminService";
 import bookService from "../../api/bookService";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import Pagination from "../../components/common/Pagination";
 import useToast from "../../hooks/useToast";
 
 const TABS = ["Préstamos", "Multas", "Reservas", "Libros", "Categorías"];
@@ -19,41 +19,6 @@ const statusReservationLabel = {
   FULFILLED: { text: "Cumplida", color: "bg-green-100 text-green-700" },
   CANCELLED: { text: "Cancelada", color: "bg-gray-100 text-gray-600" },
   EXPIRED: { text: "Expirada", color: "bg-red-100 text-red-700" },
-};
-
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-  return (
-    <div className="flex items-center justify-center gap-2 mt-6">
-      <button onClick={() => onPageChange(0)} disabled={currentPage === 0}
-        className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">«</button>
-      <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}
-        className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">Anterior</button>
-      {Array.from({ length: totalPages }, (_, i) => i)
-        .filter((i) => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
-        .reduce((acc, i, idx, arr) => {
-          if (idx > 0 && i - arr[idx - 1] > 1) acc.push("...");
-          acc.push(i);
-          return acc;
-        }, [])
-        .map((item, idx) =>
-          item === "..." ? (
-            <span key={`dots-${idx}`} className="px-2 text-gray-400">...</span>
-          ) : (
-            <button key={item} onClick={() => onPageChange(item)}
-              className={`px-4 py-2 text-sm rounded-xl transition-colors ${currentPage === item
-                ? "bg-pink-700 text-white font-medium"
-                : "border border-pink-200 text-pink-700 hover:bg-pink-50"}`}>
-              {item + 1}
-            </button>
-          )
-        )}
-      <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages - 1}
-        className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">Siguiente</button>
-      <button onClick={() => onPageChange(totalPages - 1)} disabled={currentPage === totalPages - 1}
-        className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">»</button>
-    </div>
-  );
 };
 
 const AdminPage = () => {
@@ -104,7 +69,7 @@ const AdminPage = () => {
       setReservations(reservationsData);
       setBooks(booksData.content);
       setCategories(categoriesData);
-    } catch (err) {
+    } catch {
       showToast("Error cargando datos del panel", "error");
     } finally {
       setLoading(false);
@@ -250,10 +215,10 @@ const AdminPage = () => {
     <div className="max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold text-pink-700 mb-6">Panel de administración</h1>
 
-      <div className="flex gap-2 mb-8 border-b border-pink-100 overflow-x-auto">
+      <div role="tablist" aria-label="Secciones del panel" className="flex gap-2 mb-8 border-b border-pink-100 overflow-x-auto">
         {TABS.map((tab) => (
-          <button key={tab} onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab
+          <button key={tab} role="tab" aria-selected={activeTab === tab} onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-600 ${activeTab === tab
               ? "border-pink-700 text-pink-700"
               : "border-transparent text-gray-500 hover:text-pink-700"}`}>
             {tab}
@@ -264,7 +229,8 @@ const AdminPage = () => {
       {/* ── Préstamos ── */}
       {activeTab === "Préstamos" && (
         <div>
-          <input type="text" placeholder="Buscar por libro o usuario..." value={loanSearch}
+          <label htmlFor="admin-loan-search" className="sr-only">Buscar préstamos por libro o usuario</label>
+          <input id="admin-loan-search" type="text" placeholder="Buscar por libro o usuario..." value={loanSearch}
             onChange={(e) => { setLoanSearch(e.target.value); setLoanPage(0); }}
             className={searchClass} />
           <p className="text-sm text-gray-500 mb-4">
@@ -296,7 +262,8 @@ const AdminPage = () => {
 
       {activeTab === "Multas" && (
         <div>
-          <input type="text" placeholder="Buscar por libro o usuario..." value={fineSearch}
+          <label htmlFor="admin-fine-search" className="sr-only">Buscar multas por libro o usuario</label>
+          <input id="admin-fine-search" type="text" placeholder="Buscar por libro o usuario..." value={fineSearch}
             onChange={(e) => { setFineSearch(e.target.value); setFinePage(0); }}
             className={searchClass} />
           <p className="text-sm text-gray-500 mb-4">
@@ -326,7 +293,8 @@ const AdminPage = () => {
 
       {activeTab === "Reservas" && (
         <div>
-          <input type="text" placeholder="Buscar por libro o usuario..." value={reservationSearch}
+          <label htmlFor="admin-reservation-search" className="sr-only">Buscar reservas por libro o usuario</label>
+          <input id="admin-reservation-search" type="text" placeholder="Buscar por libro o usuario..." value={reservationSearch}
             onChange={(e) => { setReservationSearch(e.target.value); setReservationPage(0); }}
             className={searchClass} />
           <p className="text-sm text-gray-500 mb-4">
@@ -362,19 +330,19 @@ const AdminPage = () => {
               {editingBookId ? "Editar libro" : "Añadir nuevo libro"}
             </h2>
             <form onSubmit={handleBookSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input className={inputClass} type="text" placeholder="Título *" required
+              <input className={inputClass} type="text" placeholder="Título *" aria-label="Título" required
                 value={bookForm.title} onChange={(e) => setBookForm({ ...bookForm, title: e.target.value })} />
-              <input className={inputClass} type="text" placeholder="Autor *" required
+              <input className={inputClass} type="text" placeholder="Autor *" aria-label="Autor" required
                 value={bookForm.author} onChange={(e) => setBookForm({ ...bookForm, author: e.target.value })} />
-              <input className={inputClass} type="text" placeholder="ISBN *" required
+              <input className={inputClass} type="text" placeholder="ISBN *" aria-label="ISBN" required
                 value={bookForm.isbn} onChange={(e) => setBookForm({ ...bookForm, isbn: e.target.value })} />
-              <input className={inputClass} type="number" placeholder="Número de páginas" min={1}
+              <input className={inputClass} type="number" placeholder="Número de páginas" aria-label="Número de páginas" min={1}
                 value={bookForm.pages} onChange={(e) => setBookForm({ ...bookForm, pages: e.target.value })} />
-              <input className={inputClass} type="number" placeholder="Año de publicación"
+              <input className={inputClass} type="number" placeholder="Año de publicación" aria-label="Año de publicación"
                 value={bookForm.publishYear} onChange={(e) => setBookForm({ ...bookForm, publishYear: e.target.value })} />
-              <input className={inputClass} type="text" placeholder="URL portada"
+              <input className={inputClass} type="text" placeholder="URL portada" aria-label="URL de la portada"
                 value={bookForm.coverUrl} onChange={(e) => setBookForm({ ...bookForm, coverUrl: e.target.value })} />
-              <input className={inputClass} type="number" placeholder="Copias totales *" required min={1}
+              <input className={inputClass} type="number" placeholder="Copias totales *" aria-label="Copias totales" required min={1}
                 value={bookForm.totalCopies} onChange={(e) => setBookForm({ ...bookForm, totalCopies: e.target.value })} />
               <div className="sm:col-span-2">
                 <p className="text-sm text-pink-700 font-medium mb-2">Categorías *</p>
@@ -409,7 +377,8 @@ const AdminPage = () => {
             </form>
           </div>
 
-          <input type="text" placeholder="Buscar por título o autor..." value={bookSearch}
+          <label htmlFor="admin-book-search" className="sr-only">Buscar libros por título o autor</label>
+          <input id="admin-book-search" type="text" placeholder="Buscar por título o autor..." value={bookSearch}
             onChange={(e) => { setBookSearch(e.target.value); setBookPage(0); }}
             className={searchClass} />
           <p className="text-sm text-gray-500 mb-4">
@@ -448,10 +417,10 @@ const AdminPage = () => {
               {editingCategoryId ? "Editar categoría" : "Nueva categoría"}
             </h2>
             <form onSubmit={handleCategorySubmit} className="flex gap-3 flex-wrap">
-              <input type="text" placeholder="Nombre *" required value={categoryForm.name}
+              <input type="text" placeholder="Nombre *" aria-label="Nombre de la categoría" required value={categoryForm.name}
                 onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
                 className="flex-1 min-w-[150px] border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white" />
-              <input type="text" placeholder="Descripción" value={categoryForm.description}
+              <input type="text" placeholder="Descripción" aria-label="Descripción de la categoría" value={categoryForm.description}
                 onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
                 className="flex-1 min-w-[150px] border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white" />
               <button type="submit" className={btnPrimary}>
@@ -466,7 +435,8 @@ const AdminPage = () => {
             </form>
           </div>
 
-          <input type="text" placeholder="Buscar categoría..." value={categorySearch}
+          <label htmlFor="admin-category-search" className="sr-only">Buscar categoría</label>
+          <input id="admin-category-search" type="text" placeholder="Buscar categoría..." value={categorySearch}
             onChange={(e) => { setCategorySearch(e.target.value); setCategoryPage(0); }}
             className={searchClass} />
           <p className="text-sm text-gray-500 mb-4">

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import authService from "../../api/authService";
 import useToast from "../../hooks/useToast";
@@ -7,9 +7,21 @@ import useToast from "../../hooks/useToast";
 const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { showToast } = useToast();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+
+  // A 401 elsewhere in the app (expired/invalid token) sets this flag right
+  // before redirecting here, so the reason for landing back on the login
+  // screen isn't a silent mystery.
+  useEffect(() => {
+    if (sessionStorage.getItem("session_expired")) {
+      sessionStorage.removeItem("session_expired");
+      showToast("Tu sesión ha caducado. Inicia sesión de nuevo.", "error");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount only
+  }, []);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -20,7 +32,8 @@ const LoginPage = () => {
       const data = await authService.login(formData.email, formData.password);
       login({ email: data.email, role: data.role, name: data.name }, data.token);
       showToast(`¡Bienvenid@, ${data.name}!`, "success");
-      navigate("/");
+      const redirect = searchParams.get("redirect");
+      navigate(redirect || "/", { replace: true });
     } catch (err) {
       showToast(err.response?.data?.message || "Email o contraseña incorrectos", "error");
     } finally {
@@ -38,14 +51,16 @@ const LoginPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} required
+            <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input id="login-email" type="email" name="email" value={formData.email} onChange={handleChange} required
+              autoComplete="email"
               placeholder="tu@email.com"
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} required
+            <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+            <input id="login-password" type="password" name="password" value={formData.password} onChange={handleChange} required
+              autoComplete="current-password"
               placeholder="••••••••"
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent" />
           </div>
