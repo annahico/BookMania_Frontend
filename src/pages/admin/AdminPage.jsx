@@ -86,6 +86,7 @@ const AdminPage = () => {
   const [categoryForm, setCategoryForm] = useState({ name: "", description: "" });
   const [editingCategoryId, setEditingCategoryId] = useState(null);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchAll must run only once on mount
   useEffect(() => { fetchAll(); }, []);
 
   const fetchAll = async () => {
