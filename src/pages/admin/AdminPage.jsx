@@ -167,19 +167,6 @@ const AdminPage = () => {
     });
   };
 
-  const handleReturnLoan = (id) => {
-    confirm("¿Marcar este préstamo como devuelto?", async () => {
-      setModal({ open: false });
-      try {
-        const updated = await adminService.returnLoan(id);
-        setLoans((prev) => prev.map((l) => (l.id === id ? updated : l)));
-        showToast("Préstamo marcado como devuelto", "success");
-      } catch (err) {
-        showToast(err.response?.data?.message || "Error al marcar como devuelto", "error");
-      }
-    });
-  };
-
   const handleDeleteFine = (id) => {
     confirm(t("admin.fines.voidConfirm"), async () => {
       setModal({ open: false });
