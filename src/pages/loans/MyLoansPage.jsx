@@ -75,7 +75,7 @@ const MyLoansPage = () => {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div>
         <div className="h-8 bg-pink-100 dark:bg-slate-800 rounded w-48 mb-6 animate-pulse" />
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -90,10 +90,10 @@ const MyLoansPage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div>
       <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-6">{t("loans.title")}</h1>
 
-      <div className="flex gap-2 mb-3">
+      <div className="flex gap-2 mb-3 max-w-2xl">
         <label htmlFor="loans-search" className="sr-only">{t("loans.searchLabel")}</label>
         <input id="loans-search" type="text" placeholder={t("loans.searchPlaceholder")} value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(0); }}
@@ -116,7 +116,7 @@ const MyLoansPage = () => {
       {paginated.length === 0 ? (
         <p className="text-gray-500 dark:text-slate-400 text-center py-12">{t("loans.noResults")}</p>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {paginated.map((loan) => (
             <div key={loan.id}
               className="bg-white dark:bg-slate-800 rounded-2xl border border-pink-100 dark:border-slate-700 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

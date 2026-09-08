@@ -64,7 +64,7 @@ const Navbar = () => {
       <div className="h-14" />
 
       <nav className="fixed top-0 left-0 right-0 w-full z-50 bg-pink-700 dark:bg-pink-950 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
 
           <Link to="/" className="shrink-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-pink-700">
             <img src={logo} alt="BookMania" className="h-10 w-auto" />
