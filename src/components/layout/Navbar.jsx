@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import useAuth from "../../hooks/useAuth";
 import useTheme from "../../hooks/useTheme";
@@ -47,6 +47,14 @@ const ThemeToggle = ({ className }) => {
   );
 };
 
+// Center nav links: the current page reads like an actual page title (bigger,
+// bold, solid white, underlined) while the rest stay as small, quiet links —
+// so it's obvious at a glance where you are, not just a row of equal links.
+const navLinkClass = ({ isActive }) =>
+  `transition-colors pb-0.5 border-b-2 ${isActive
+    ? "text-lg font-bold text-white tracking-wide border-white"
+    : "text-sm font-medium text-pink-100 border-transparent hover:text-white hover:border-pink-300 dark:hover:border-pink-700"}`;
+
 const Navbar = () => {
   const { t } = useTranslation();
   const { user, logout, isAdmin, isAuthenticated } = useAuth();
@@ -76,27 +84,27 @@ const Navbar = () => {
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center gap-5">
-            <Link to="/" className="text-sm text-pink-50 hover:text-white transition-colors">
+          <div className="hidden md:flex items-center gap-6">
+            <NavLink to="/" end className={navLinkClass}>
               {t("nav.catalog")}
-            </Link>
+            </NavLink>
             {isAuthenticated() && (
               <>
-                <Link to="/my-loans" className="text-sm text-pink-50 hover:text-white transition-colors">
+                <NavLink to="/my-loans" className={navLinkClass}>
                   {t("nav.myLoans")}
-                </Link>
-                <Link to="/my-reservations" className="text-sm text-pink-50 hover:text-white transition-colors">
+                </NavLink>
+                <NavLink to="/my-reservations" className={navLinkClass}>
                   {t("nav.myReservations")}
-                </Link>
-                <Link to="/my-fines" className="text-sm text-pink-50 hover:text-white transition-colors">
+                </NavLink>
+                <NavLink to="/my-fines" className={navLinkClass}>
                   {t("nav.myFines")}
-                </Link>
+                </NavLink>
               </>
             )}
             {isAdmin() && (
-              <Link to="/admin" className="text-sm text-pink-50 hover:text-white transition-colors">
+              <NavLink to="/admin" className={navLinkClass}>
                 {t("nav.admin")}
-              </Link>
+              </NavLink>
             )}
           </div>
 
