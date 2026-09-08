@@ -57,6 +57,7 @@ const MyReservationsPage = () => {
   const [modal, setModal] = useState({ open: false, message: "", onConfirm: null });
   const { showToast } = useToast();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchReservations must run only once on mount
   useEffect(() => { fetchReservations(); }, []);
 
   const fetchReservations = async () => {
