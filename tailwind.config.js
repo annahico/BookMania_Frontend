@@ -7,18 +7,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        pink: {
-          50: "#fff5f9",
-          100: "#ffe8f2",
-          200: "#ffd1e6",
-          300: "#ffb3d4",
-          400: "#ff8ab8",
-          500: "#f48fb1",
-          600: "#f06292",
-          700: "#ec407a",
-          800: "#e91e63",
-          900: "#c2185b",
-        },
+        // Uses Tailwind's built-in `pink` scale (not overridden here) so the
+        // brand color is an actual pink, not fuchsia. Usage convention for
+        // WCAG AA contrast (see README "Accessibility" note):
+        //   - solid fills / body text on white  -> pink-700+ (>=6:1)
+        //   - focus rings / borders             -> pink-600 (>=4.5:1, >=3:1 non-text)
+        //   - light chip/badge backgrounds       -> pink-50/100/200 (paired with pink-700+ text)
         cream: {
           50: "#fdfbf7",
           100: "#faf6ef",

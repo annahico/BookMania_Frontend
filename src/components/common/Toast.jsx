@@ -8,7 +8,7 @@ const Toast = ({ message, type = "error", onClose }) => {
 
   const styles = {
     error: "bg-red-50 border-red-200 text-red-700",
-    success: "bg-fuchsia-50 border-fuchsia-200 text-fuchsia-700",
+    success: "bg-pink-50 border-pink-200 text-pink-700",
     warning: "bg-yellow-50 border-yellow-200 text-yellow-700",
   };
 

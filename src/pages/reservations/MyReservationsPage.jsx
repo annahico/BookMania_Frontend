@@ -18,9 +18,9 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   return (
     <div className="flex items-center justify-center gap-2 mt-6">
       <button onClick={() => onPageChange(0)} disabled={currentPage === 0}
-        className="px-3 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">«</button>
+        className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">«</button>
       <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}
-        className="px-4 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">Anterior</button>
+        className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">Anterior</button>
       {Array.from({ length: totalPages }, (_, i) => i)
         .filter((i) => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
         .reduce((acc, i, idx, arr) => {
@@ -34,16 +34,16 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           ) : (
             <button key={item} onClick={() => onPageChange(item)}
               className={`px-4 py-2 text-sm rounded-xl transition-colors ${currentPage === item
-                ? "bg-fuchsia-500 text-white font-medium"
-                : "border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50"}`}>
+                ? "bg-pink-700 text-white font-medium"
+                : "border border-pink-200 text-pink-700 hover:bg-pink-50"}`}>
               {item + 1}
             </button>
           )
         )}
       <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages - 1}
-        className="px-4 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">Siguiente</button>
+        className="px-4 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">Siguiente</button>
       <button onClick={() => onPageChange(totalPages - 1)} disabled={currentPage === totalPages - 1}
-        className="px-3 py-2 text-sm rounded-xl border border-fuchsia-200 text-fuchsia-600 hover:bg-fuchsia-50 disabled:opacity-30 disabled:cursor-not-allowed">»</button>
+        className="px-3 py-2 text-sm rounded-xl border border-pink-200 text-pink-700 hover:bg-pink-50 disabled:opacity-30 disabled:cursor-not-allowed">»</button>
     </div>
   );
 };
@@ -97,12 +97,12 @@ const MyReservationsPage = () => {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="h-8 bg-fuchsia-100 rounded w-48 mb-6 animate-pulse" />
+        <div className="h-8 bg-pink-100 rounded w-48 mb-6 animate-pulse" />
         <div className="space-y-3">
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="animate-pulse bg-white border border-fuchsia-100 rounded-xl p-4">
-              <div className="bg-fuchsia-100 rounded h-4 w-1/3 mb-2" />
-              <div className="bg-fuchsia-100 rounded h-3 w-1/2" />
+            <div key={i} className="animate-pulse bg-white border border-pink-100 rounded-xl p-4">
+              <div className="bg-pink-100 rounded h-4 w-1/3 mb-2" />
+              <div className="bg-pink-100 rounded h-3 w-1/2" />
             </div>
           ))}
         </div>
@@ -112,15 +112,15 @@ const MyReservationsPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-fuchsia-700 mb-6">Mis reservas</h1>
+      <h1 className="text-2xl font-bold text-pink-700 mb-6">Mis reservas</h1>
 
       <div className="flex gap-2 mb-3">
         <input type="text" placeholder="Buscar por título..." value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-          className="border border-fuchsia-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white flex-1" />
+          className="border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white flex-1" />
         <select value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
-          className="border border-fuchsia-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400 bg-white text-gray-600">
+          className="border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white text-gray-600">
           <option value="ALL">Todos</option>
           <option value="PENDING">En cola</option>
           <option value="FULFILLED">Cumplida</option>
@@ -139,9 +139,9 @@ const MyReservationsPage = () => {
         <div className="space-y-4">
           {paginated.map((reservation) => (
             <div key={reservation.id}
-              className="bg-white rounded-2xl border border-fuchsia-100 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              className="bg-white rounded-2xl border border-pink-100 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h3 className="font-semibold text-fuchsia-700">{reservation.bookTitle}</h3>
+                <h3 className="font-semibold text-pink-700">{reservation.bookTitle}</h3>
                 <div className="flex items-center gap-3 mt-1 flex-wrap">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusLabel[reservation.status]?.color}`}>
                     {statusLabel[reservation.status]?.text}
@@ -155,7 +155,7 @@ const MyReservationsPage = () => {
                     {new Date(reservation.reservationDate).toLocaleDateString("es-ES")}
                   </span>
                   {reservation.expiryDate && (
-                    <span className="text-xs text-fuchsia-500 font-medium">
+                    <span className="text-xs text-pink-700 font-medium">
                       Recoger antes del: {new Date(reservation.expiryDate).toLocaleDateString("es-ES")}
                     </span>
                   )}
