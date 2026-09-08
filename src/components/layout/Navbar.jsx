@@ -66,8 +66,14 @@ const Navbar = () => {
       <nav className="fixed top-0 left-0 right-0 w-full z-50 bg-pink-700 dark:bg-pink-950 shadow-md">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
 
-          <Link to="/" className="shrink-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-pink-700">
-            <img src={logo} alt="BookMania" className="h-10 w-auto" />
+          <Link to="/" className="shrink-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-pink-700 dark:focus-visible:ring-offset-pink-950">
+            {/* The logo PNG has a transparent background with near-black text, so it
+                disappears against the near-black dark:bg-pink-950 navbar — give it a
+                light backdrop in dark mode only (light mode's pink-700 already has
+                enough contrast for the dark text). */}
+            <div className="dark:bg-cream-50 dark:rounded-lg dark:px-2.5 dark:py-1 transition-colors">
+              <img src={logo} alt="BookMania" className="h-10 w-auto" />
+            </div>
           </Link>
 
           <div className="hidden md:flex items-center gap-5">
