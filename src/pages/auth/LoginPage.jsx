@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import useAuth from "../../hooks/useAuth";
 import authService from "../../api/authService";
 import useToast from "../../hooks/useToast";
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const { login } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -18,7 +20,7 @@ const LoginPage = () => {
   useEffect(() => {
     if (sessionStorage.getItem("session_expired")) {
       sessionStorage.removeItem("session_expired");
-      showToast("Tu sesión ha caducado. Inicia sesión de nuevo.", "error");
+      showToast(t("auth.login.sessionExpired"), "error");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount only
   }, []);
@@ -31,49 +33,49 @@ const LoginPage = () => {
     try {
       const data = await authService.login(formData.email, formData.password);
       login({ email: data.email, role: data.role, name: data.name }, data.token);
-      showToast(`¡Bienvenid@, ${data.name}!`, "success");
+      showToast(t("auth.login.welcome", { name: data.name }), "success");
       const redirect = searchParams.get("redirect");
       navigate(redirect || "/", { replace: true });
     } catch (err) {
-      showToast(err.response?.data?.message || "Email o contraseña incorrectos", "error");
+      showToast(err.response?.data?.message || t("auth.login.error"), "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-cream-100 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-md w-full max-w-md p-8 border border-pink-100">
+    <div className="min-h-screen bg-cream-100 dark:bg-slate-900 flex items-center justify-center px-4">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md w-full max-w-md p-8 border border-pink-100 dark:border-slate-700">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-pink-700">📚 BookMania</h1>
-          <p className="text-gray-500 mt-1">Inicia sesión en tu cuenta</p>
+          <h1 className="text-3xl font-bold text-pink-700 dark:text-pink-400">{t("auth.brand")}</h1>
+          <p className="text-gray-500 dark:text-slate-400 mt-1">{t("auth.login.subtitle")}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{t("auth.login.emailLabel")}</label>
             <input id="login-email" type="email" name="email" value={formData.email} onChange={handleChange} required
               autoComplete="email"
-              placeholder="tu@email.com"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent" />
+              placeholder={t("auth.login.emailPlaceholder")}
+              className="w-full border border-gray-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent" />
           </div>
           <div>
-            <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+            <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{t("auth.login.passwordLabel")}</label>
             <input id="login-password" type="password" name="password" value={formData.password} onChange={handleChange} required
               autoComplete="current-password"
               placeholder="••••••••"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent" />
+              className="w-full border border-gray-300 dark:border-slate-600 rounded-lg px-4 py-2.5 text-sm bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 focus:border-transparent" />
           </div>
           <button type="submit" disabled={loading}
-            className="w-full bg-pink-700 hover:bg-pink-800 disabled:bg-pink-300 text-white font-medium rounded-lg py-2.5 text-sm transition-colors">
-            {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+            className="w-full bg-pink-700 hover:bg-pink-800 disabled:bg-pink-300 dark:bg-pink-600 dark:hover:bg-pink-500 dark:disabled:bg-pink-900 text-white font-medium rounded-lg py-2.5 text-sm transition-colors">
+            {loading ? t("auth.login.submitting") : t("auth.login.submit")}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
-          ¿No tienes cuenta?{" "}
-          <Link to="/register" className="text-pink-700 hover:underline font-medium">
-            Regístrate
+        <p className="text-center text-sm text-gray-500 dark:text-slate-400 mt-6">
+          {t("auth.login.noAccount")}{" "}
+          <Link to="/register" className="text-pink-700 dark:text-pink-400 hover:underline font-medium">
+            {t("auth.login.registerLink")}
           </Link>
         </p>
       </div>

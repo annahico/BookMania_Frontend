@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import bookService from "../../api/bookService";
 import loanService from "../../api/loanService";
 import reservationService from "../../api/reservationService";
@@ -8,6 +9,7 @@ import useAuth from "../../hooks/useAuth";
 import useToast from "../../hooks/useToast";
 
 const BookDetailPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -36,24 +38,25 @@ const BookDetailPage = () => {
           setCover(data.coverUrl);
         }
       } catch (err) {
-        if (!cancelled) setError(err.response?.data?.message || "No se pudo cargar el libro.");
+        if (!cancelled) setError(err.response?.data?.message || t("books.detail.loadError"));
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
     fetchBook();
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only `id` should re-trigger the fetch
   }, [id]);
 
   const handleLoan = async () => {
     setLoanLoading(true);
     try {
       await loanService.create(book.id);
-      showToast("Préstamo solicitado correctamente", "success");
+      showToast(t("books.detail.loanSuccess"), "success");
       setBook({ ...book, availableCopies: book.availableCopies - 1 });
       setLoanDone(true);
     } catch (err) {
-      showToast(err.response?.data?.message || "Error al solicitar el préstamo", "error");
+      showToast(err.response?.data?.message || t("books.detail.loanError"), "error");
     } finally {
       setLoanLoading(false);
     }
@@ -63,10 +66,10 @@ const BookDetailPage = () => {
     setReservationLoading(true);
     try {
       await reservationService.create(book.id);
-      showToast("Reserva realizada correctamente", "success");
+      showToast(t("books.detail.reservationSuccess"), "success");
       setReservationDone(true);
     } catch (err) {
-      showToast(err.response?.data?.message || "Error al hacer la reserva", "error");
+      showToast(err.response?.data?.message || t("books.detail.reservationError"), "error");
     } finally {
       setReservationLoading(false);
     }
@@ -75,7 +78,7 @@ const BookDetailPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-pink-700">Cargando libro...</p>
+        <p className="text-pink-700 dark:text-pink-400">{t("books.detail.loading")}</p>
       </div>
     );
   }
@@ -83,7 +86,7 @@ const BookDetailPage = () => {
   if (error || !book) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-red-500">{error || "Libro no encontrado"}</p>
+        <p className="text-red-500 dark:text-red-400">{error || t("books.detail.notFound")}</p>
       </div>
     );
   }
@@ -91,88 +94,88 @@ const BookDetailPage = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <button onClick={() => navigate(-1)}
-        className="text-sm text-pink-700 hover:text-pink-800 mb-6 flex items-center gap-1">
-        ← Volver al catálogo
+        className="text-sm text-pink-700 dark:text-pink-400 hover:text-pink-800 dark:hover:text-pink-300 mb-6 flex items-center gap-1">
+        ← {t("common.backToCatalog")}
       </button>
 
       <div className="flex flex-col md:flex-row gap-10">
 
         <div className="w-full md:w-56 flex-shrink-0">
-          <div className="bg-pink-50 rounded-2xl overflow-hidden aspect-[2/3] border border-pink-100">
+          <div className="bg-pink-50 dark:bg-slate-800 rounded-2xl overflow-hidden aspect-[2/3] border border-pink-100 dark:border-slate-700">
             {cover ? (
               <img src={cover} alt={book.title} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-pink-700 text-sm text-center p-4">
-                Sin portada
+              <div className="w-full h-full flex items-center justify-center text-pink-700 dark:text-pink-400 text-sm text-center p-4">
+                {t("books.noCover")}
               </div>
             )}
           </div>
         </div>
 
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-pink-700 mb-2">{book.title}</h1>
-          <p className="text-lg text-gray-600 mb-4">{book.author}</p>
+          <h1 className="text-3xl font-bold text-pink-700 dark:text-pink-400 mb-2">{book.title}</h1>
+          <p className="text-lg text-gray-600 dark:text-slate-300 mb-4">{book.author}</p>
 
           <div className="flex flex-wrap gap-2 mb-6">
             {book.categories?.map((cat) => (
               <span key={cat}
-                className="bg-pink-50 text-pink-700 border border-pink-200 text-sm px-3 py-1 rounded-full">
+                className="bg-pink-50 dark:bg-pink-950 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-900 text-sm px-3 py-1 rounded-full">
                 {cat}
               </span>
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-8 text-sm bg-pink-50 rounded-2xl p-4 border border-pink-100">
+          <div className="grid grid-cols-2 gap-4 mb-8 text-sm bg-pink-50 dark:bg-slate-800 rounded-2xl p-4 border border-pink-100 dark:border-slate-700">
             {book.isbn && (
               <div>
-                <p className="text-pink-700 font-medium">ISBN</p>
-                <p className="text-gray-700">{book.isbn}</p>
+                <p className="text-pink-700 dark:text-pink-400 font-medium">{t("books.detail.isbn")}</p>
+                <p className="text-gray-700 dark:text-slate-300">{book.isbn}</p>
               </div>
             )}
             {book.pages && (
               <div>
-                <p className="text-pink-700 font-medium">Páginas</p>
-                <p className="text-gray-700">{book.pages}</p>
+                <p className="text-pink-700 dark:text-pink-400 font-medium">{t("books.detail.pages")}</p>
+                <p className="text-gray-700 dark:text-slate-300">{book.pages}</p>
               </div>
             )}
             {book.publishYear && (
               <div>
-                <p className="text-pink-700 font-medium">Año de publicación</p>
-                <p className="text-gray-700">{book.publishYear}</p>
+                <p className="text-pink-700 dark:text-pink-400 font-medium">{t("books.detail.publishYear")}</p>
+                <p className="text-gray-700 dark:text-slate-300">{book.publishYear}</p>
               </div>
             )}
             <div>
-              <p className="text-pink-700 font-medium">Copias totales</p>
-              <p className="text-gray-700">{book.totalCopies}</p>
+              <p className="text-pink-700 dark:text-pink-400 font-medium">{t("books.detail.totalCopies")}</p>
+              <p className="text-gray-700 dark:text-slate-300">{book.totalCopies}</p>
             </div>
             <div>
-              <p className="text-pink-700 font-medium">Disponibilidad</p>
+              <p className="text-pink-700 dark:text-pink-400 font-medium">{t("books.detail.availability")}</p>
               {book.availableCopies > 0 ? (
-                <p className="text-green-600 font-medium">
-                  {book.availableCopies} {book.availableCopies === 1 ? "copia disponible" : "copias disponibles"}
+                <p className="text-green-600 dark:text-green-400 font-medium">
+                  {t("books.detail.copiesAvailable", { count: book.availableCopies })}
                 </p>
               ) : (
-                <p className="text-red-500 font-medium">No disponible</p>
+                <p className="text-red-500 dark:text-red-400 font-medium">{t("books.unavailable")}</p>
               )}
             </div>
           </div>
 
           {!isAuthenticated() ? (
-            <p className="text-sm text-gray-500">
-              <button onClick={() => navigate("/login")} className="text-pink-700 hover:underline">
-                Inicia sesión
+            <p className="text-sm text-gray-500 dark:text-slate-400">
+              <button onClick={() => navigate("/login")} className="text-pink-700 dark:text-pink-400 hover:underline">
+                {t("books.detail.loginLink")}
               </button>{" "}
-              para solicitar un préstamo o reserva.
+              {t("books.detail.loginPrompt")}
             </p>
           ) : book.availableCopies > 0 ? (
             <button onClick={handleLoan} disabled={loanLoading || loanDone}
-              className="bg-pink-700 hover:bg-pink-800 disabled:bg-pink-300 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-colors">
-              {loanLoading ? "Solicitando..." : loanDone ? "Préstamo solicitado ✓" : "Solicitar préstamo"}
+              className="bg-pink-700 hover:bg-pink-800 disabled:bg-pink-300 dark:bg-pink-600 dark:hover:bg-pink-500 dark:disabled:bg-pink-900 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-colors">
+              {loanLoading ? t("books.detail.requestingLoan") : loanDone ? t("books.detail.loanRequested") : t("books.detail.requestLoan")}
             </button>
           ) : (
             <button onClick={handleReservation} disabled={reservationLoading || reservationDone}
-              className="bg-pink-700 hover:bg-pink-800 disabled:bg-pink-300 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-colors">
-              {reservationLoading ? "Reservando..." : reservationDone ? "Reservado ✓" : "Reservar"}
+              className="bg-pink-700 hover:bg-pink-800 disabled:bg-pink-300 dark:bg-pink-600 dark:hover:bg-pink-500 dark:disabled:bg-pink-900 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-colors">
+              {reservationLoading ? t("books.detail.requestingReservation") : reservationDone ? t("books.detail.reservationDone") : t("books.detail.requestReservation")}
             </button>
           )}
         </div>
