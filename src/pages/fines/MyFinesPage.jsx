@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import fineService from "../../api/fineService";
 import Pagination from "../../components/common/Pagination";
 import useToast from "../../hooks/useToast";
@@ -6,6 +7,7 @@ import useToast from "../../hooks/useToast";
 const PAGE_SIZE = 15;
 
 const MyFinesPage = () => {
+  const { t, i18n } = useTranslation();
   const [fines, setFines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -18,13 +20,14 @@ const MyFinesPage = () => {
         const data = await fineService.getMyFines();
         setFines(data);
       } catch {
-        showToast("Error cargando multas", "error");
+        showToast(t("fines.loadError"), "error");
       } finally {
         setLoading(false);
       }
     };
     fetchFines();
-  }, [showToast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount only
+  }, []);
 
   const filtered = fines.filter((f) =>
     f.bookTitle?.toLowerCase().includes(search.toLowerCase())
@@ -35,12 +38,12 @@ const MyFinesPage = () => {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="h-8 bg-pink-100 rounded w-48 mb-6 animate-pulse" />
+        <div className="h-8 bg-pink-100 dark:bg-slate-800 rounded w-48 mb-6 animate-pulse" />
         <div className="space-y-3">
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="animate-pulse bg-white border border-pink-100 rounded-xl p-4">
-              <div className="bg-pink-100 rounded h-4 w-1/3 mb-2" />
-              <div className="bg-pink-100 rounded h-3 w-1/2" />
+            <div key={i} className="animate-pulse bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-xl p-4">
+              <div className="bg-pink-100 dark:bg-slate-700 rounded h-4 w-1/3 mb-2" />
+              <div className="bg-pink-100 dark:bg-slate-700 rounded h-3 w-1/2" />
             </div>
           ))}
         </div>
@@ -50,24 +53,24 @@ const MyFinesPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-pink-700 mb-2">Mis multas</h1>
-      <p className="text-gray-500 text-sm mb-6">
-        Las multas son penalizaciones temporales que te impiden hacer reservas.
+      <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-2">{t("fines.title")}</h1>
+      <p className="text-gray-500 dark:text-slate-400 text-sm mb-6">
+        {t("fines.subtitle")}
       </p>
 
-      <label htmlFor="fines-search" className="sr-only">Buscar por título</label>
-      <input id="fines-search" type="text" placeholder="Buscar por título..." value={search}
+      <label htmlFor="fines-search" className="sr-only">{t("fines.searchLabel")}</label>
+      <input id="fines-search" type="text" placeholder={t("fines.searchPlaceholder")} value={search}
         onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-        className="border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white w-full mb-3" />
-      <p className="text-sm text-gray-500 mb-4">
-        {filtered.length} multas
-        {totalPages > 1 && ` · Página ${page + 1} de ${totalPages}`}
+        className="border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 w-full mb-3" />
+      <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+        {t("fines.count", { count: filtered.length })}
+        {totalPages > 1 && ` · ${t("fines.pageOf", { current: page + 1, total: totalPages })}`}
       </p>
 
       {paginated.length === 0 ? (
-        <div className="bg-pink-50 border border-pink-100 rounded-2xl p-8 text-center">
-          <p className="text-pink-700 font-medium">¡Sin multas! 🎉</p>
-          <p className="text-pink-700 text-sm mt-1">No tienes ninguna penalización activa.</p>
+        <div className="bg-pink-50 dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-8 text-center">
+          <p className="text-pink-700 dark:text-pink-400 font-medium">{t("fines.noneTitle")}</p>
+          <p className="text-pink-700 dark:text-pink-400 text-sm mt-1">{t("fines.noneSubtitle")}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -75,25 +78,25 @@ const MyFinesPage = () => {
             const isActive = fine.penaltyDaysRemaining > 0;
             return (
               <div key={fine.id}
-                className={`bg-white rounded-2xl border p-5 ${isActive ? "border-pink-200" : "border-gray-200"}`}>
+                className={`bg-white dark:bg-slate-800 rounded-2xl border p-5 ${isActive ? "border-pink-200 dark:border-pink-900" : "border-gray-200 dark:border-slate-700"}`}>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-pink-700">{fine.bookTitle}</h3>
-                    <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-500">
-                      <span>Días de retraso: <strong>{fine.daysOverdue}</strong></span>
-                      <span>Días de penalización: <strong>{fine.penaltyDays}</strong></span>
-                      <span>Bloqueado hasta: <strong>{new Date(fine.penaltyUntil).toLocaleDateString("es-ES")}</strong></span>
+                    <h3 className="font-semibold text-pink-700 dark:text-pink-400">{fine.bookTitle}</h3>
+                    <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-500 dark:text-slate-400">
+                      <span>{t("fines.daysOverdue", { count: fine.daysOverdue })}</span>
+                      <span>{t("fines.penaltyDays", { count: fine.penaltyDays })}</span>
+                      <span>{t("fines.blockedUntil", { date: new Date(fine.penaltyUntil).toLocaleDateString(i18n.language) })}</span>
                     </div>
                   </div>
                   {isActive ? (
-                    <div className="flex-shrink-0 bg-pink-50 border border-pink-200 rounded-xl px-4 py-2 text-center">
-                      <p className="text-pink-700 font-bold text-lg">{fine.penaltyDaysRemaining}</p>
-                      <p className="text-pink-700 text-xs">días restantes</p>
+                    <div className="flex-shrink-0 bg-pink-50 dark:bg-pink-950 border border-pink-200 dark:border-pink-900 rounded-xl px-4 py-2 text-center">
+                      <p className="text-pink-700 dark:text-pink-300 font-bold text-lg">{fine.penaltyDaysRemaining}</p>
+                      <p className="text-pink-700 dark:text-pink-300 text-xs">{t("fines.daysRemaining")}</p>
                     </div>
                   ) : (
-                    <div className="flex-shrink-0 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-center">
-                      <p className="text-gray-500 text-xs">Penalización</p>
-                      <p className="text-gray-600 font-medium text-sm">cumplida</p>
+                    <div className="flex-shrink-0 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl px-4 py-2 text-center">
+                      <p className="text-gray-500 dark:text-slate-400 text-xs">{t("fines.penaltyFulfilledLabel")}</p>
+                      <p className="text-gray-600 dark:text-slate-300 font-medium text-sm">{t("fines.penaltyFulfilled")}</p>
                     </div>
                   )}
                 </div>

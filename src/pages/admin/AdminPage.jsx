@@ -1,28 +1,17 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import adminService from "../../api/adminService";
 import bookService from "../../api/bookService";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import Pagination from "../../components/common/Pagination";
 import useToast from "../../hooks/useToast";
 
-const TABS = ["Préstamos", "Multas", "Reservas", "Libros", "Categorías"];
+const TAB_KEYS = ["loans", "fines", "reservations", "books", "categories"];
 const PAGE_SIZE = 15;
 
-const statusLoanLabel = {
-  ISSUED: { text: "Activo", color: "bg-green-100 text-green-700" },
-  OVERDUE: { text: "Vencido", color: "bg-red-100 text-red-700" },
-  RETURNED: { text: "Devuelto", color: "bg-gray-100 text-gray-600" },
-};
-
-const statusReservationLabel = {
-  PENDING: { text: "En cola", color: "bg-yellow-100 text-yellow-700" },
-  FULFILLED: { text: "Cumplida", color: "bg-green-100 text-green-700" },
-  CANCELLED: { text: "Cancelada", color: "bg-gray-100 text-gray-600" },
-  EXPIRED: { text: "Expirada", color: "bg-red-100 text-red-700" },
-};
-
 const AdminPage = () => {
-  const [activeTab, setActiveTab] = useState("Préstamos");
+  const { t, i18n } = useTranslation();
+  const [activeTab, setActiveTab] = useState("loans");
   const [loans, setLoans] = useState([]);
   const [fines, setFines] = useState([]);
   const [reservations, setReservations] = useState([]);
@@ -31,6 +20,19 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState({ open: false, message: "", onConfirm: null });
   const { showToast } = useToast();
+
+  const statusLoanLabel = {
+    ISSUED: { text: t("loans.statusIssued"), color: "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400" },
+    OVERDUE: { text: t("loans.statusOverdue"), color: "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400" },
+    RETURNED: { text: t("loans.statusReturned"), color: "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300" },
+  };
+
+  const statusReservationLabel = {
+    PENDING: { text: t("reservations.statusPending"), color: "bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-400" },
+    FULFILLED: { text: t("reservations.statusFulfilled"), color: "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400" },
+    CANCELLED: { text: t("reservations.statusCancelled"), color: "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300" },
+    EXPIRED: { text: t("reservations.statusExpired"), color: "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400" },
+  };
 
   const [loanSearch, setLoanSearch] = useState("");
   const [loanPage, setLoanPage] = useState(0);
@@ -70,7 +72,7 @@ const AdminPage = () => {
       setBooks(booksData.content);
       setCategories(categoriesData);
     } catch {
-      showToast("Error cargando datos del panel", "error");
+      showToast(t("admin.loadError"), "error");
     } finally {
       setLoading(false);
     }
@@ -101,6 +103,19 @@ const AdminPage = () => {
     c.name?.toLowerCase().includes(categorySearch.toLowerCase())
   );
 
+  const handleReturnLoan = (id) => {
+    confirm(t("admin.loans.returnConfirm"), async () => {
+      setModal({ open: false });
+      try {
+        const updated = await adminService.returnLoan(id);
+        setLoans((prev) => prev.map((l) => (l.id === id ? updated : l)));
+        showToast(t("admin.loans.returnSuccess"), "success");
+      } catch (err) {
+        showToast(err.response?.data?.message || t("admin.loans.returnError"), "error");
+      }
+    });
+  };
+
   const handleBookSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -113,17 +128,17 @@ const AdminPage = () => {
       };
       if (editingBookId) {
         await adminService.updateBook(editingBookId, payload);
-        showToast("Libro actualizado correctamente", "success");
+        showToast(t("admin.books.updateSuccess"), "success");
       } else {
         await adminService.createBook(payload);
-        showToast("Libro creado correctamente", "success");
+        showToast(t("admin.books.createSuccess"), "success");
       }
       setBookForm({ title: "", author: "", isbn: "", pages: "", publishYear: "", coverUrl: "", totalCopies: 1, categoryIds: [] });
       setEditingBookId(null);
       const booksData = await bookService.getAll({ size: 1000 });
       setBooks(booksData.content);
     } catch (err) {
-      showToast(err.response?.data?.message || "Error al guardar el libro", "error");
+      showToast(err.response?.data?.message || t("admin.books.saveError"), "error");
     }
   };
 
@@ -135,19 +150,19 @@ const AdminPage = () => {
       totalCopies: book.totalCopies, pages: book.pages || "",
       categoryIds: categories.filter((c) => book.categories?.includes(c.name)).map((c) => c.id),
     });
-    setActiveTab("Libros");
+    setActiveTab("books");
     window.scrollTo(0, 0);
   };
 
   const handleDeleteBook = (id) => {
-    confirm("¿Eliminar este libro? Esta acción no se puede deshacer.", async () => {
+    confirm(t("admin.books.deleteConfirm"), async () => {
       setModal({ open: false });
       try {
         await adminService.deleteBook(id);
         setBooks((prev) => prev.filter((b) => b.id !== id));
-        showToast("Libro eliminado correctamente", "success");
+        showToast(t("admin.books.deleteSuccess"), "success");
       } catch (err) {
-        showToast(err.response?.data?.message || "Error al eliminar", "error");
+        showToast(err.response?.data?.message || t("admin.books.deleteError"), "error");
       }
     });
   };
@@ -166,14 +181,14 @@ const AdminPage = () => {
   };
 
   const handleDeleteFine = (id) => {
-    confirm("¿Anular esta multa? Se eliminará la penalización del usuario.", async () => {
+    confirm(t("admin.fines.voidConfirm"), async () => {
       setModal({ open: false });
       try {
         await adminService.deleteFine(id);
         setFines((prev) => prev.filter((f) => f.id !== id));
-        showToast("Multa anulada correctamente", "success");
+        showToast(t("admin.fines.voidSuccess"), "success");
       } catch (err) {
-        showToast(err.response?.data?.message || "Error al anular", "error");
+        showToast(err.response?.data?.message || t("admin.fines.voidError"), "error");
       }
     });
   };
@@ -183,28 +198,28 @@ const AdminPage = () => {
     try {
       if (editingCategoryId) {
         await adminService.updateCategory(editingCategoryId, categoryForm);
-        showToast("Categoría actualizada correctamente", "success");
+        showToast(t("admin.categories.updateSuccess"), "success");
       } else {
         await adminService.createCategory(categoryForm);
-        showToast("Categoría creada correctamente", "success");
+        showToast(t("admin.categories.createSuccess"), "success");
       }
       setCategoryForm({ name: "", description: "" });
       setEditingCategoryId(null);
       setCategories(await bookService.getCategories());
     } catch (err) {
-      showToast(err.response?.data?.message || "Error al guardar la categoría", "error");
+      showToast(err.response?.data?.message || t("admin.categories.saveError"), "error");
     }
   };
 
   const handleDeleteCategory = (id) => {
-    confirm("¿Eliminar esta categoría?", async () => {
+    confirm(t("admin.categories.deleteConfirm"), async () => {
       setModal({ open: false });
       try {
         await adminService.deleteCategory(id);
         setCategories((prev) => prev.filter((c) => c.id !== id));
-        showToast("Categoría eliminada correctamente", "success");
+        showToast(t("admin.categories.deleteSuccess"), "success");
       } catch (err) {
-        showToast(err.response?.data?.message || "Error al eliminar", "error");
+        showToast(err.response?.data?.message || t("admin.categories.deleteError"), "error");
       }
     });
   };
@@ -212,55 +227,55 @@ const AdminPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-pink-700">Cargando panel de administración...</p>
+        <p className="text-pink-700 dark:text-pink-400">{t("admin.loading")}</p>
       </div>
     );
   }
 
-  const inputClass = "border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white w-full";
-  const searchClass = "border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white w-full mb-4";
-  const btnPrimary = "bg-pink-700 hover:bg-pink-800 text-white font-medium px-6 py-2 rounded-xl text-sm transition-colors";
-  const btnSecondary = "border border-gray-300 text-gray-600 hover:bg-gray-50 px-6 py-2 rounded-xl text-sm transition-colors";
-  const btnEdit = "text-sm border border-pink-400 text-pink-700 hover:bg-pink-50 px-3 py-1.5 rounded-xl transition-colors";
-  const btnDelete = "text-sm border border-red-400 text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-xl transition-colors";
+  const inputClass = "border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 w-full";
+  const searchClass = "border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 w-full mb-4";
+  const btnPrimary = "bg-pink-700 hover:bg-pink-800 dark:bg-pink-600 dark:hover:bg-pink-500 text-white font-medium px-6 py-2 rounded-xl text-sm transition-colors";
+  const btnSecondary = "border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 px-6 py-2 rounded-xl text-sm transition-colors";
+  const btnEdit = "text-sm border border-pink-400 dark:border-pink-800 text-pink-700 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-slate-700 px-3 py-1.5 rounded-xl transition-colors";
+  const btnDelete = "text-sm border border-red-400 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 px-3 py-1.5 rounded-xl transition-colors";
 
   return (
     <div className="max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-pink-700 mb-6">Panel de administración</h1>
+      <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-6">{t("admin.title")}</h1>
 
-      <div role="tablist" aria-label="Secciones del panel" className="flex gap-2 mb-8 border-b border-pink-100 overflow-x-auto">
-        {TABS.map((tab) => (
+      <div role="tablist" aria-label={t("admin.title")} className="flex gap-2 mb-8 border-b border-pink-100 dark:border-slate-700 overflow-x-auto">
+        {TAB_KEYS.map((tab) => (
           <button key={tab} role="tab" aria-selected={activeTab === tab} onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-600 ${activeTab === tab
-              ? "border-pink-700 text-pink-700"
-              : "border-transparent text-gray-500 hover:text-pink-700"}`}>
-            {tab}
+              ? "border-pink-700 dark:border-pink-400 text-pink-700 dark:text-pink-400"
+              : "border-transparent text-gray-500 dark:text-slate-400 hover:text-pink-700 dark:hover:text-pink-400"}`}>
+            {t(`admin.tabs.${tab}`)}
           </button>
         ))}
       </div>
 
       {/* ── Préstamos ── */}
-      {activeTab === "Préstamos" && (
+      {activeTab === "loans" && (
         <div>
-          <label htmlFor="admin-loan-search" className="sr-only">Buscar préstamos por libro o usuario</label>
-          <input id="admin-loan-search" type="text" placeholder="Buscar por libro o usuario..." value={loanSearch}
+          <label htmlFor="admin-loan-search" className="sr-only">{t("admin.loans.searchLabel")}</label>
+          <input id="admin-loan-search" type="text" placeholder={t("admin.loans.searchPlaceholder")} value={loanSearch}
             onChange={(e) => { setLoanSearch(e.target.value); setLoanPage(0); }}
             className={searchClass} />
-          <p className="text-sm text-gray-500 mb-4">
-            {filteredLoans.length} préstamos
-            {totalPages(filteredLoans) > 1 && ` · Página ${loanPage + 1} de ${totalPages(filteredLoans)}`}
+          <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+            {t("admin.loans.count", { count: filteredLoans.length })}
+            {totalPages(filteredLoans) > 1 && ` · ${t("loans.pageOf", { current: loanPage + 1, total: totalPages(filteredLoans) })}`}
           </p>
           <div className="space-y-3">
-            {filteredLoans.length === 0 && <p className="text-gray-400 text-center py-8">No hay préstamos.</p>}
+            {filteredLoans.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8">{t("admin.loans.noResults")}</p>}
             {paginate(filteredLoans, loanPage).map((loan) => (
-              <div key={loan.id} className="bg-white border border-pink-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div key={loan.id} className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                  <p className="font-medium text-pink-700">{loan.bookTitle}</p>
-                  <p className="text-sm text-gray-600">{loan.userName}</p>
-                  <div className="flex gap-3 mt-1 text-xs text-gray-400 flex-wrap">
-                    <span>Vence: {new Date(loan.dueDate).toLocaleDateString("es-ES")}</span>
-                    {loan.returnDate && <span>Devuelto: {new Date(loan.returnDate).toLocaleDateString("es-ES")}</span>}
-                    <span>Prórrogas: {loan.extensionsUsed}/3</span>
+                  <p className="font-medium text-pink-700 dark:text-pink-400">{loan.bookTitle}</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-300">{loan.userName}</p>
+                  <div className="flex gap-3 mt-1 text-xs text-gray-400 dark:text-slate-500 flex-wrap">
+                    <span>{t("admin.loans.due", { date: new Date(loan.dueDate).toLocaleDateString(i18n.language) })}</span>
+                    {loan.returnDate && <span>{t("admin.loans.returned", { date: new Date(loan.returnDate).toLocaleDateString(i18n.language) })}</span>}
+                    <span>{t("admin.loans.extensions", { count: loan.extensionsUsed })}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 self-start sm:self-center">
@@ -268,7 +283,7 @@ const AdminPage = () => {
                     {statusLoanLabel[loan.status]?.text}
                   </span>
                   {loan.status !== "RETURNED" && (
-                    <button onClick={() => handleReturnLoan(loan.id)} className={btnEdit}>Marcar devuelto</button>
+                    <button onClick={() => handleReturnLoan(loan.id)} className={btnEdit}>{t("admin.loans.markReturned")}</button>
                   )}
                 </div>
               </div>
@@ -278,30 +293,30 @@ const AdminPage = () => {
         </div>
       )}
 
-      {activeTab === "Multas" && (
+      {activeTab === "fines" && (
         <div>
-          <label htmlFor="admin-fine-search" className="sr-only">Buscar multas por libro o usuario</label>
-          <input id="admin-fine-search" type="text" placeholder="Buscar por libro o usuario..." value={fineSearch}
+          <label htmlFor="admin-fine-search" className="sr-only">{t("admin.fines.searchLabel")}</label>
+          <input id="admin-fine-search" type="text" placeholder={t("admin.fines.searchPlaceholder")} value={fineSearch}
             onChange={(e) => { setFineSearch(e.target.value); setFinePage(0); }}
             className={searchClass} />
-          <p className="text-sm text-gray-500 mb-4">
-            {filteredFines.length} multas
-            {totalPages(filteredFines) > 1 && ` · Página ${finePage + 1} de ${totalPages(filteredFines)}`}
+          <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+            {t("admin.fines.count", { count: filteredFines.length })}
+            {totalPages(filteredFines) > 1 && ` · ${t("loans.pageOf", { current: finePage + 1, total: totalPages(filteredFines) })}`}
           </p>
           <div className="space-y-3">
-            {filteredFines.length === 0 && <p className="text-gray-400 text-center py-8">No hay multas.</p>}
+            {filteredFines.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8">{t("admin.fines.noResults")}</p>}
             {paginate(filteredFines, finePage).map((fine) => (
-              <div key={fine.id} className="bg-white border border-pink-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+              <div key={fine.id} className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-medium text-pink-700">{fine.bookTitle}</p>
-                  <p className="text-sm text-gray-600">{fine.userName}</p>
-                  <div className="flex gap-4 mt-1 text-xs text-gray-400 flex-wrap">
-                    <span>Retraso: <strong>{fine.daysOverdue} días</strong></span>
-                    <span>Penalización: <strong>{fine.penaltyDays} días</strong></span>
-                    <span>Hasta: <strong>{new Date(fine.penaltyUntil).toLocaleDateString("es-ES")}</strong></span>
+                  <p className="font-medium text-pink-700 dark:text-pink-400">{fine.bookTitle}</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-300">{fine.userName}</p>
+                  <div className="flex gap-4 mt-1 text-xs text-gray-400 dark:text-slate-500 flex-wrap">
+                    <span>{t("admin.fines.overdueLabel", { count: fine.daysOverdue })}</span>
+                    <span>{t("admin.fines.penaltyLabel", { count: fine.penaltyDays })}</span>
+                    <span>{t("admin.fines.untilLabel", { date: new Date(fine.penaltyUntil).toLocaleDateString(i18n.language) })}</span>
                   </div>
                 </div>
-                <button onClick={() => handleDeleteFine(fine.id)} className={btnDelete}>Anular</button>
+                <button onClick={() => handleDeleteFine(fine.id)} className={btnDelete}>{t("admin.fines.void")}</button>
               </div>
             ))}
           </div>
@@ -309,26 +324,26 @@ const AdminPage = () => {
         </div>
       )}
 
-      {activeTab === "Reservas" && (
+      {activeTab === "reservations" && (
         <div>
-          <label htmlFor="admin-reservation-search" className="sr-only">Buscar reservas por libro o usuario</label>
-          <input id="admin-reservation-search" type="text" placeholder="Buscar por libro o usuario..." value={reservationSearch}
+          <label htmlFor="admin-reservation-search" className="sr-only">{t("admin.reservations.searchLabel")}</label>
+          <input id="admin-reservation-search" type="text" placeholder={t("admin.reservations.searchPlaceholder")} value={reservationSearch}
             onChange={(e) => { setReservationSearch(e.target.value); setReservationPage(0); }}
             className={searchClass} />
-          <p className="text-sm text-gray-500 mb-4">
-            {filteredReservations.length} reservas
-            {totalPages(filteredReservations) > 1 && ` · Página ${reservationPage + 1} de ${totalPages(filteredReservations)}`}
+          <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+            {t("admin.reservations.count", { count: filteredReservations.length })}
+            {totalPages(filteredReservations) > 1 && ` · ${t("loans.pageOf", { current: reservationPage + 1, total: totalPages(filteredReservations) })}`}
           </p>
           <div className="space-y-3">
-            {filteredReservations.length === 0 && <p className="text-gray-400 text-center py-8">No hay reservas.</p>}
+            {filteredReservations.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8">{t("admin.reservations.noResults")}</p>}
             {paginate(filteredReservations, reservationPage).map((r) => (
-              <div key={r.id} className="bg-white border border-pink-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div key={r.id} className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                  <p className="font-medium text-pink-700">{r.bookTitle}</p>
-                  <p className="text-sm text-gray-600">{r.userName} — posición {r.queuePosition}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {new Date(r.reservationDate).toLocaleDateString("es-ES")}
-                    {r.expiryDate && ` · Expira: ${new Date(r.expiryDate).toLocaleDateString("es-ES")}`}
+                  <p className="font-medium text-pink-700 dark:text-pink-400">{r.bookTitle}</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-300">{t("admin.reservations.position", { name: r.userName, position: r.queuePosition })}</p>
+                  <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
+                    {new Date(r.reservationDate).toLocaleDateString(i18n.language)}
+                    {r.expiryDate && ` · ${t("admin.reservations.expires", { date: new Date(r.expiryDate).toLocaleDateString(i18n.language) })}`}
                   </p>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium self-start sm:self-center ${statusReservationLabel[r.status]?.color}`}>
@@ -341,29 +356,29 @@ const AdminPage = () => {
         </div>
       )}
 
-      {activeTab === "Libros" && (
+      {activeTab === "books" && (
         <div>
-          <div className="bg-white border border-pink-100 rounded-2xl p-6 mb-6">
-            <h2 className="font-semibold text-pink-700 mb-4">
-              {editingBookId ? "Editar libro" : "Añadir nuevo libro"}
+          <div className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-6 mb-6">
+            <h2 className="font-semibold text-pink-700 dark:text-pink-400 mb-4">
+              {editingBookId ? t("admin.books.editTitle") : t("admin.books.newTitle")}
             </h2>
             <form onSubmit={handleBookSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input className={inputClass} type="text" placeholder="Título *" aria-label="Título" required
+              <input className={inputClass} type="text" placeholder={t("admin.books.titlePlaceholder")} aria-label={t("admin.books.titleLabel")} required
                 value={bookForm.title} onChange={(e) => setBookForm({ ...bookForm, title: e.target.value })} />
-              <input className={inputClass} type="text" placeholder="Autor *" aria-label="Autor" required
+              <input className={inputClass} type="text" placeholder={t("admin.books.authorPlaceholder")} aria-label={t("admin.books.authorLabel")} required
                 value={bookForm.author} onChange={(e) => setBookForm({ ...bookForm, author: e.target.value })} />
-              <input className={inputClass} type="text" placeholder="ISBN *" aria-label="ISBN" required
+              <input className={inputClass} type="text" placeholder={t("admin.books.isbnPlaceholder")} aria-label={t("admin.books.isbnLabel")} required
                 value={bookForm.isbn} onChange={(e) => setBookForm({ ...bookForm, isbn: e.target.value })} />
-              <input className={inputClass} type="number" placeholder="Número de páginas" aria-label="Número de páginas" min={1}
+              <input className={inputClass} type="number" placeholder={t("admin.books.pagesPlaceholder")} aria-label={t("admin.books.pagesLabel")} min={1}
                 value={bookForm.pages} onChange={(e) => setBookForm({ ...bookForm, pages: e.target.value })} />
-              <input className={inputClass} type="number" placeholder="Año de publicación" aria-label="Año de publicación"
+              <input className={inputClass} type="number" placeholder={t("admin.books.publishYearPlaceholder")} aria-label={t("admin.books.publishYearLabel")}
                 value={bookForm.publishYear} onChange={(e) => setBookForm({ ...bookForm, publishYear: e.target.value })} />
-              <input className={inputClass} type="text" placeholder="URL portada" aria-label="URL de la portada"
+              <input className={inputClass} type="text" placeholder={t("admin.books.coverUrlPlaceholder")} aria-label={t("admin.books.coverUrlLabel")}
                 value={bookForm.coverUrl} onChange={(e) => setBookForm({ ...bookForm, coverUrl: e.target.value })} />
-              <input className={inputClass} type="number" placeholder="Copias totales *" aria-label="Copias totales" required min={1}
+              <input className={inputClass} type="number" placeholder={t("admin.books.totalCopiesPlaceholder")} aria-label={t("admin.books.totalCopiesLabel")} required min={1}
                 value={bookForm.totalCopies} onChange={(e) => setBookForm({ ...bookForm, totalCopies: e.target.value })} />
               <div className="sm:col-span-2">
-                <p className="text-sm text-pink-700 font-medium mb-2">Categorías *</p>
+                <p className="text-sm text-pink-700 dark:text-pink-400 font-medium mb-2">{t("admin.books.categoriesLabel")}</p>
                 <div className="flex flex-wrap gap-3">
                   {categories.map((cat) => (
                     <label key={cat.id} className="flex items-center gap-1.5 cursor-pointer">
@@ -376,50 +391,50 @@ const AdminPage = () => {
                             setBookForm({ ...bookForm, categoryIds: bookForm.categoryIds.filter((id) => id !== cat.id) });
                           }
                         }} className="rounded accent-pink-600" />
-                      <span className="text-sm text-gray-700">{cat.name}</span>
+                      <span className="text-sm text-gray-700 dark:text-slate-300">{cat.name}</span>
                     </label>
                   ))}
                 </div>
               </div>
               <div className="sm:col-span-2 flex gap-3">
                 <button type="submit" className={btnPrimary}>
-                  {editingBookId ? "Actualizar" : "Crear libro"}
+                  {editingBookId ? t("admin.books.update") : t("admin.books.create")}
                 </button>
                 {editingBookId && (
                   <button type="button" className={btnSecondary}
                     onClick={() => { setEditingBookId(null); setBookForm({ title: "", author: "", isbn: "", pages: "", publishYear: "", coverUrl: "", totalCopies: 1, categoryIds: [] }); }}>
-                    Cancelar
+                    {t("admin.books.cancelEdit")}
                   </button>
                 )}
               </div>
             </form>
           </div>
 
-          <label htmlFor="admin-book-search" className="sr-only">Buscar libros por título o autor</label>
-          <input id="admin-book-search" type="text" placeholder="Buscar por título o autor..." value={bookSearch}
+          <label htmlFor="admin-book-search" className="sr-only">{t("admin.books.searchLabel")}</label>
+          <input id="admin-book-search" type="text" placeholder={t("admin.books.searchPlaceholder")} value={bookSearch}
             onChange={(e) => { setBookSearch(e.target.value); setBookPage(0); }}
             className={searchClass} />
-          <p className="text-sm text-gray-500 mb-4">
-            {filteredBooks.length} libros
-            {totalPages(filteredBooks) > 1 && ` · Página ${bookPage + 1} de ${totalPages(filteredBooks)}`}
+          <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+            {t("admin.books.count", { count: filteredBooks.length })}
+            {totalPages(filteredBooks) > 1 && ` · ${t("loans.pageOf", { current: bookPage + 1, total: totalPages(filteredBooks) })}`}
           </p>
           <div className="space-y-3">
-            {filteredBooks.length === 0 && <p className="text-gray-400 text-center py-8">No hay libros.</p>}
+            {filteredBooks.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8">{t("admin.books.noResults")}</p>}
             {paginate(filteredBooks, bookPage).map((book) => (
-              <div key={book.id} className="bg-white border border-pink-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+              <div key={book.id} className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between gap-4">
                 <div>
-                  <p className="font-medium text-pink-700">{book.title}</p>
-                  <p className="text-sm text-gray-500">{book.author}</p>
+                  <p className="font-medium text-pink-700 dark:text-pink-400">{book.title}</p>
+                  <p className="text-sm text-gray-500 dark:text-slate-400">{book.author}</p>
                   <div className="flex gap-2 mt-1 flex-wrap">
                     {book.categories?.map((cat) => (
-                      <span key={cat} className="text-xs bg-pink-50 text-pink-700 border border-pink-100 px-2 py-0.5 rounded-full">{cat}</span>
+                      <span key={cat} className="text-xs bg-pink-50 dark:bg-pink-950 text-pink-700 dark:text-pink-300 border border-pink-100 dark:border-pink-900 px-2 py-0.5 rounded-full">{cat}</span>
                     ))}
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">Copias: {book.availableCopies}/{book.totalCopies}</p>
+                  <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">{t("admin.books.copies", { available: book.availableCopies, total: book.totalCopies })}</p>
                 </div>
                 <div className="flex gap-2 flex-shrink-0">
-                  <button onClick={() => handleEditBook(book)} className={btnEdit}>Editar</button>
-                  <button onClick={() => handleDeleteBook(book.id)} className={btnDelete}>Eliminar</button>
+                  <button onClick={() => handleEditBook(book)} className={btnEdit}>{t("admin.books.edit")}</button>
+                  <button onClick={() => handleDeleteBook(book.id)} className={btnDelete}>{t("admin.books.delete")}</button>
                 </div>
               </div>
             ))}
@@ -428,51 +443,51 @@ const AdminPage = () => {
         </div>
       )}
 
-      {activeTab === "Categorías" && (
+      {activeTab === "categories" && (
         <div>
-          <div className="bg-white border border-pink-100 rounded-2xl p-6 mb-6">
-            <h2 className="font-semibold text-pink-700 mb-4">
-              {editingCategoryId ? "Editar categoría" : "Nueva categoría"}
+          <div className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-6 mb-6">
+            <h2 className="font-semibold text-pink-700 dark:text-pink-400 mb-4">
+              {editingCategoryId ? t("admin.categories.editTitle") : t("admin.categories.newTitle")}
             </h2>
             <form onSubmit={handleCategorySubmit} className="flex gap-3 flex-wrap">
-              <input type="text" placeholder="Nombre *" aria-label="Nombre de la categoría" required value={categoryForm.name}
+              <input type="text" placeholder={t("admin.categories.namePlaceholder")} aria-label={t("admin.categories.nameLabel")} required value={categoryForm.name}
                 onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                className="flex-1 min-w-[150px] border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white" />
-              <input type="text" placeholder="Descripción" aria-label="Descripción de la categoría" value={categoryForm.description}
+                className="flex-1 min-w-[150px] border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600" />
+              <input type="text" placeholder={t("admin.categories.descriptionPlaceholder")} aria-label={t("admin.categories.descriptionLabel")} value={categoryForm.description}
                 onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
-                className="flex-1 min-w-[150px] border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white" />
+                className="flex-1 min-w-[150px] border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600" />
               <button type="submit" className={btnPrimary}>
-                {editingCategoryId ? "Actualizar" : "Crear"}
+                {editingCategoryId ? t("admin.categories.update") : t("admin.categories.create")}
               </button>
               {editingCategoryId && (
                 <button type="button" className={btnSecondary}
                   onClick={() => { setEditingCategoryId(null); setCategoryForm({ name: "", description: "" }); }}>
-                  Cancelar
+                  {t("admin.categories.cancelEdit")}
                 </button>
               )}
             </form>
           </div>
 
-          <label htmlFor="admin-category-search" className="sr-only">Buscar categoría</label>
-          <input id="admin-category-search" type="text" placeholder="Buscar categoría..." value={categorySearch}
+          <label htmlFor="admin-category-search" className="sr-only">{t("admin.categories.searchLabel")}</label>
+          <input id="admin-category-search" type="text" placeholder={t("admin.categories.searchPlaceholder")} value={categorySearch}
             onChange={(e) => { setCategorySearch(e.target.value); setCategoryPage(0); }}
             className={searchClass} />
-          <p className="text-sm text-gray-500 mb-4">
-            {filteredCategories.length} categorías
-            {totalPages(filteredCategories) > 1 && ` · Página ${categoryPage + 1} de ${totalPages(filteredCategories)}`}
+          <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+            {t("admin.categories.count", { count: filteredCategories.length })}
+            {totalPages(filteredCategories) > 1 && ` · ${t("loans.pageOf", { current: categoryPage + 1, total: totalPages(filteredCategories) })}`}
           </p>
           <div className="space-y-3">
-            {filteredCategories.length === 0 && <p className="text-gray-400 text-center py-8">No hay categorías.</p>}
+            {filteredCategories.length === 0 && <p className="text-gray-400 dark:text-slate-500 text-center py-8">{t("admin.categories.noResults")}</p>}
             {paginate(filteredCategories, categoryPage).map((cat) => (
-              <div key={cat.id} className="bg-white border border-pink-100 rounded-2xl p-4 flex items-center justify-between">
+              <div key={cat.id} className="bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-pink-700">{cat.name}</p>
-                  {cat.description && <p className="text-sm text-gray-500">{cat.description}</p>}
+                  <p className="font-medium text-pink-700 dark:text-pink-400">{cat.name}</p>
+                  {cat.description && <p className="text-sm text-gray-500 dark:text-slate-400">{cat.description}</p>}
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => { setEditingCategoryId(cat.id); setCategoryForm({ name: cat.name, description: cat.description || "" }); window.scrollTo(0, 0); }}
-                    className={btnEdit}>Editar</button>
-                  <button onClick={() => handleDeleteCategory(cat.id)} className={btnDelete}>Eliminar</button>
+                    className={btnEdit}>{t("admin.categories.edit")}</button>
+                  <button onClick={() => handleDeleteCategory(cat.id)} className={btnDelete}>{t("admin.categories.delete")}</button>
                 </div>
               </div>
             ))}

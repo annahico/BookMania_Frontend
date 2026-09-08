@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import reservationService from "../../api/reservationService";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import Pagination from "../../components/common/Pagination";
@@ -6,14 +7,8 @@ import useToast from "../../hooks/useToast";
 
 const PAGE_SIZE = 15;
 
-const statusLabel = {
-  PENDING: { text: "En cola", color: "bg-yellow-100 text-yellow-700" },
-  FULFILLED: { text: "Cumplida", color: "bg-green-100 text-green-700" },
-  CANCELLED: { text: "Cancelada", color: "bg-gray-100 text-gray-600" },
-  EXPIRED: { text: "Expirada", color: "bg-red-100 text-red-700" },
-};
-
 const MyReservationsPage = () => {
+  const { t, i18n } = useTranslation();
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -21,6 +16,13 @@ const MyReservationsPage = () => {
   const [page, setPage] = useState(0);
   const [modal, setModal] = useState({ open: false, message: "", onConfirm: null });
   const { showToast } = useToast();
+
+  const statusLabel = {
+    PENDING: { text: t("reservations.statusPending"), color: "bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-400" },
+    FULFILLED: { text: t("reservations.statusFulfilled"), color: "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400" },
+    CANCELLED: { text: t("reservations.statusCancelled"), color: "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300" },
+    EXPIRED: { text: t("reservations.statusExpired"), color: "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400" },
+  };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchReservations must run only once on mount
   useEffect(() => { fetchReservations(); }, []);
@@ -30,7 +32,7 @@ const MyReservationsPage = () => {
       const data = await reservationService.getMyReservations();
       setReservations(data);
     } catch {
-      showToast("Error cargando reservas", "error");
+      showToast(t("reservations.loadError"), "error");
     } finally {
       setLoading(false);
     }
@@ -39,14 +41,14 @@ const MyReservationsPage = () => {
   const confirm = (message, onConfirm) => setModal({ open: true, message, onConfirm });
 
   const handleCancel = (reservationId) => {
-    confirm("¿Cancelar esta reserva?", async () => {
+    confirm(t("reservations.cancelConfirm"), async () => {
       setModal({ open: false });
       try {
         const updated = await reservationService.cancel(reservationId);
         setReservations(reservations.map((r) => (r.id === reservationId ? updated : r)));
-        showToast("Reserva cancelada correctamente", "success");
+        showToast(t("reservations.cancelSuccess"), "success");
       } catch (err) {
-        showToast(err.response?.data?.message || "Error al cancelar", "error");
+        showToast(err.response?.data?.message || t("reservations.cancelError"), "error");
       }
     });
   };
@@ -62,12 +64,12 @@ const MyReservationsPage = () => {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="h-8 bg-pink-100 rounded w-48 mb-6 animate-pulse" />
+        <div className="h-8 bg-pink-100 dark:bg-slate-800 rounded w-48 mb-6 animate-pulse" />
         <div className="space-y-3">
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="animate-pulse bg-white border border-pink-100 rounded-xl p-4">
-              <div className="bg-pink-100 rounded h-4 w-1/3 mb-2" />
-              <div className="bg-pink-100 rounded h-3 w-1/2" />
+            <div key={i} className="animate-pulse bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-xl p-4">
+              <div className="bg-pink-100 dark:bg-slate-700 rounded h-4 w-1/3 mb-2" />
+              <div className="bg-pink-100 dark:bg-slate-700 rounded h-3 w-1/2" />
             </div>
           ))}
         </div>
@@ -77,61 +79,61 @@ const MyReservationsPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-pink-700 mb-6">Mis reservas</h1>
+      <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-6">{t("reservations.title")}</h1>
 
       <div className="flex gap-2 mb-3">
-        <label htmlFor="reservations-search" className="sr-only">Buscar por título</label>
-        <input id="reservations-search" type="text" placeholder="Buscar por título..." value={search}
+        <label htmlFor="reservations-search" className="sr-only">{t("reservations.searchLabel")}</label>
+        <input id="reservations-search" type="text" placeholder={t("reservations.searchPlaceholder")} value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-          className="border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white flex-1" />
-        <label htmlFor="reservations-status" className="sr-only">Filtrar por estado</label>
+          className="border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600 flex-1" />
+        <label htmlFor="reservations-status" className="sr-only">{t("reservations.statusLabel")}</label>
         <select id="reservations-status" value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
-          className="border border-pink-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white text-gray-600">
-          <option value="ALL">Todos</option>
-          <option value="PENDING">En cola</option>
-          <option value="FULFILLED">Cumplida</option>
-          <option value="CANCELLED">Cancelada</option>
-          <option value="EXPIRED">Expirada</option>
+          className="border border-pink-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-pink-600">
+          <option value="ALL">{t("reservations.statusAll")}</option>
+          <option value="PENDING">{t("reservations.statusPending")}</option>
+          <option value="FULFILLED">{t("reservations.statusFulfilled")}</option>
+          <option value="CANCELLED">{t("reservations.statusCancelled")}</option>
+          <option value="EXPIRED">{t("reservations.statusExpired")}</option>
         </select>
       </div>
-      <p className="text-sm text-gray-500 mb-4">
-        {filtered.length} reservas
-        {totalPages > 1 && ` · Página ${page + 1} de ${totalPages}`}
+      <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+        {t("reservations.count", { count: filtered.length })}
+        {totalPages > 1 && ` · ${t("reservations.pageOf", { current: page + 1, total: totalPages })}`}
       </p>
 
       {paginated.length === 0 ? (
-        <p className="text-gray-500 text-center py-12">No hay reservas.</p>
+        <p className="text-gray-500 dark:text-slate-400 text-center py-12">{t("reservations.noResults")}</p>
       ) : (
         <div className="space-y-4">
           {paginated.map((reservation) => (
             <div key={reservation.id}
-              className="bg-white rounded-2xl border border-pink-100 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              className="bg-white dark:bg-slate-800 rounded-2xl border border-pink-100 dark:border-slate-700 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h3 className="font-semibold text-pink-700">{reservation.bookTitle}</h3>
+                <h3 className="font-semibold text-pink-700 dark:text-pink-400">{reservation.bookTitle}</h3>
                 <div className="flex items-center gap-3 mt-1 flex-wrap">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusLabel[reservation.status]?.color}`}>
                     {statusLabel[reservation.status]?.text}
                   </span>
                   {reservation.status === "PENDING" && (
-                    <span className="text-xs text-gray-500">
-                      Posición: <strong>{reservation.queuePosition}</strong>
+                    <span className="text-xs text-gray-500 dark:text-slate-400">
+                      {t("reservations.position", { position: reservation.queuePosition })}
                     </span>
                   )}
-                  <span className="text-xs text-gray-500">
-                    {new Date(reservation.reservationDate).toLocaleDateString("es-ES")}
+                  <span className="text-xs text-gray-500 dark:text-slate-400">
+                    {new Date(reservation.reservationDate).toLocaleDateString(i18n.language)}
                   </span>
                   {reservation.expiryDate && (
-                    <span className="text-xs text-pink-700 font-medium">
-                      Recoger antes del: {new Date(reservation.expiryDate).toLocaleDateString("es-ES")}
+                    <span className="text-xs text-pink-700 dark:text-pink-400 font-medium">
+                      {t("reservations.expiresOn", { date: new Date(reservation.expiryDate).toLocaleDateString(i18n.language) })}
                     </span>
                   )}
                 </div>
               </div>
               {reservation.status === "PENDING" && (
                 <button onClick={() => handleCancel(reservation.id)}
-                  className="text-sm border border-red-400 text-red-500 hover:bg-red-50 px-4 py-2 rounded-xl transition-colors flex-shrink-0">
-                  Cancelar
+                  className="text-sm border border-red-400 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 px-4 py-2 rounded-xl transition-colors flex-shrink-0">
+                  {t("reservations.cancelButton")}
                 </button>
               )}
             </div>

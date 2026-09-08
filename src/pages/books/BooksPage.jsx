@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import bookService from "../../api/bookService";
 import { getBookCover } from "../../utils/bookCover";
 import useToast from "../../hooks/useToast";
 import Pagination from "../../components/common/Pagination";
 
 const BookCover = ({ isbn, coverUrl }) => {
+  const { t } = useTranslation();
   const [cover, setCover] = useState(coverUrl || null);
 
   useEffect(() => {
@@ -19,13 +21,13 @@ const BookCover = ({ isbn, coverUrl }) => {
   }, [isbn, coverUrl]);
 
   return (
-    <div className="bg-pink-50 rounded-xl overflow-hidden aspect-[2/3] mb-3 border border-pink-100">
+    <div className="bg-pink-50 dark:bg-slate-800 rounded-xl overflow-hidden aspect-[2/3] mb-3 border border-pink-100 dark:border-slate-700">
       {cover ? (
         <img src={cover} alt="" loading="lazy"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
       ) : (
-        <div className="w-full h-full flex items-center justify-center text-pink-700 text-sm text-center p-4">
-          Sin portada
+        <div className="w-full h-full flex items-center justify-center text-pink-700 dark:text-pink-400 text-sm text-center p-4">
+          {t("books.noCover")}
         </div>
       )}
     </div>
@@ -33,6 +35,7 @@ const BookCover = ({ isbn, coverUrl }) => {
 };
 
 const BooksPage = () => {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -64,18 +67,18 @@ const BooksPage = () => {
       setTotalElements(data?.totalElements || 0);
       setCurrentPage(data?.number || 0);
     } catch {
-      showToast("Error cargando el catálogo. Inténtalo de nuevo.", "error");
+      showToast(t("books.loadError"), "error");
       setBooks([]);
     } finally {
       setLoading(false);
       hasLoadedOnce.current = true;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- showToast identity is stable via useCallback in ToastProvider
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showToast/t identity is stable enough for a mount-driven fetch
   }, []);
 
   useEffect(() => {
     bookService.getCategories().then(setCategories).catch(() => {
-      showToast("No se pudieron cargar las categorías", "error");
+      showToast(t("books.categoriesLoadError"), "error");
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount only
   }, []);
@@ -101,13 +104,13 @@ const BooksPage = () => {
   if (loading && !hasLoadedOnce.current) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-pink-700 mb-6">Catálogo de libros</h1>
+        <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-6">{t("books.title")}</h1>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6" aria-hidden="true">
           {Array.from({ length: 10 }).map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="bg-pink-100 rounded-xl aspect-[2/3] mb-3" />
-              <div className="bg-pink-100 rounded h-3 mb-1.5" />
-              <div className="bg-pink-100 rounded h-3 w-2/3" />
+              <div className="bg-pink-100 dark:bg-slate-800 rounded-xl aspect-[2/3] mb-3" />
+              <div className="bg-pink-100 dark:bg-slate-800 rounded h-3 mb-1.5" />
+              <div className="bg-pink-100 dark:bg-slate-800 rounded h-3 w-2/3" />
             </div>
           ))}
         </div>
@@ -117,60 +120,60 @@ const BooksPage = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-pink-700 mb-6">Catálogo de libros</h1>
+      <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-6">{t("books.title")}</h1>
 
       <div className="flex gap-4 mb-6 flex-wrap">
-        <label htmlFor="book-search" className="sr-only">Buscar por título o autor</label>
+        <label htmlFor="book-search" className="sr-only">{t("books.searchLabel")}</label>
         <input
           id="book-search"
           type="text"
-          placeholder="Buscar por título o autor..."
+          placeholder={t("books.searchPlaceholder")}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          className="flex-1 min-w-[200px] border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white"
+          className="flex-1 min-w-[200px] border border-pink-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600"
         />
-        <label htmlFor="book-category" className="sr-only">Filtrar por categoría</label>
+        <label htmlFor="book-category" className="sr-only">{t("books.categoryLabel")}</label>
         <select
           id="book-category"
           value={selectedCategory}
           onChange={handleCategoryChange}
-          className="border border-pink-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-pink-600 bg-white"
+          className="border border-pink-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-pink-600"
         >
-          <option value="">Todas las categorías</option>
+          <option value="">{t("books.allCategories")}</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.name}>{cat.name}</option>
           ))}
         </select>
       </div>
 
-      <p className="text-sm text-gray-400 mb-4" role="status" aria-live="polite">
-        {totalElements} {totalElements === 1 ? "libro encontrado" : "libros encontrados"}
-        {totalPages > 1 && ` · Página ${currentPage + 1} de ${totalPages}`}
+      <p className="text-sm text-gray-400 dark:text-slate-500 mb-4" role="status" aria-live="polite">
+        {t("books.resultsCount", { count: totalElements })}
+        {totalPages > 1 && ` · ${t("books.pageOf", { current: currentPage + 1, total: totalPages })}`}
       </p>
 
       {books.length === 0 ? (
-        <p className="text-gray-500 text-center py-12">No se encontraron libros.</p>
+        <p className="text-gray-500 dark:text-slate-400 text-center py-12">{t("books.noResults")}</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {books.map((book) => (
             <Link key={book.id} to={`/books/${book.id}`} className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-600 focus-visible:ring-offset-2">
               <BookCover isbn={book.isbn} coverUrl={book.coverUrl} />
-              <h3 className="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-pink-800 transition-colors">
+              <h3 className="text-sm font-medium text-gray-900 dark:text-slate-100 line-clamp-2 group-hover:text-pink-800 dark:group-hover:text-pink-400 transition-colors">
                 {book.title}
               </h3>
-              <p className="text-xs text-gray-500 mt-0.5">{book.author}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{book.author}</p>
               <div className="flex flex-wrap gap-1 mt-1">
                 {book.categories?.map((cat) => (
-                  <span key={cat} className="text-xs bg-pink-50 text-pink-700 px-1.5 py-0.5 rounded-full border border-pink-100">
+                  <span key={cat} className="text-xs bg-pink-50 dark:bg-pink-950 text-pink-700 dark:text-pink-300 px-1.5 py-0.5 rounded-full border border-pink-100 dark:border-pink-900">
                     {cat}
                   </span>
                 ))}
               </div>
               <div className="mt-1">
                 {book.availableCopies > 0 ? (
-                  <span className="text-xs text-green-600 font-medium">Disponible</span>
+                  <span className="text-xs text-green-600 dark:text-green-400 font-medium">{t("books.available")}</span>
                 ) : (
-                  <span className="text-xs text-red-500 font-medium">No disponible</span>
+                  <span className="text-xs text-red-500 dark:text-red-400 font-medium">{t("books.unavailable")}</span>
                 )}
               </div>
             </Link>

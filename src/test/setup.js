@@ -1,4 +1,10 @@
 import '@testing-library/jest-dom';
+import i18n from '../i18n';
+
+// jsdom's navigator.language defaults to "en-US" — without pinning this,
+// LanguageDetector would pick English (there's nothing in localStorage yet)
+// and every existing Spanish-text assertion in the test suite would break.
+i18n.changeLanguage('es');
 
 const localStorageMock = (() => {
   let store = {};
