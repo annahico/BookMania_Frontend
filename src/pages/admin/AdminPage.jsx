@@ -152,6 +152,19 @@ const AdminPage = () => {
     });
   };
 
+  const handleReturnLoan = (id) => {
+    confirm("¿Marcar este préstamo como devuelto?", async () => {
+      setModal({ open: false });
+      try {
+        const updated = await adminService.returnLoan(id);
+        setLoans((prev) => prev.map((l) => (l.id === id ? updated : l)));
+        showToast("Préstamo marcado como devuelto", "success");
+      } catch (err) {
+        showToast(err.response?.data?.message || "Error al marcar como devuelto", "error");
+      }
+    });
+  };
+
   const handleDeleteFine = (id) => {
     confirm("¿Anular esta multa? Se eliminará la penalización del usuario.", async () => {
       setModal({ open: false });
@@ -250,9 +263,14 @@ const AdminPage = () => {
                     <span>Prórrogas: {loan.extensionsUsed}/3</span>
                   </div>
                 </div>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium self-start sm:self-center ${statusLoanLabel[loan.status]?.color}`}>
-                  {statusLoanLabel[loan.status]?.text}
-                </span>
+                <div className="flex items-center gap-2 self-start sm:self-center">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusLoanLabel[loan.status]?.color}`}>
+                    {statusLoanLabel[loan.status]?.text}
+                  </span>
+                  {loan.status !== "RETURNED" && (
+                    <button onClick={() => handleReturnLoan(loan.id)} className={btnEdit}>Marcar devuelto</button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

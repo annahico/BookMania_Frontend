@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import bookService from "../../api/bookService";
@@ -37,7 +36,7 @@ const BookDetailPage = () => {
           setCover(data.coverUrl);
         }
       } catch (err) {
-        if (!cancelled) setError("No se pudo cargar el libro.");
+        if (!cancelled) setError(err.response?.data?.message || "No se pudo cargar el libro.");
       } finally {
         if (!cancelled) setLoading(false);
       }
