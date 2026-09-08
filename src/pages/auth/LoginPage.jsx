@@ -48,7 +48,7 @@ const LoginPage = () => {
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-md w-full max-w-md p-8 border border-pink-100 dark:border-slate-700">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-pink-700 dark:text-pink-400">{t("auth.brand")}</h1>
-          <p className="text-gray-500 dark:text-slate-400 mt-1">{t("auth.login.subtitle")}</p>
+          <p className="text-gray-600 dark:text-slate-400 mt-1">{t("auth.login.subtitle")}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -72,7 +72,7 @@ const LoginPage = () => {
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 dark:text-slate-400 mt-6">
+        <p className="text-center text-sm text-gray-600 dark:text-slate-400 mt-6">
           {t("auth.login.noAccount")}{" "}
           <Link to="/register" className="text-pink-700 dark:text-pink-400 hover:underline font-medium">
             {t("auth.login.registerLink")}

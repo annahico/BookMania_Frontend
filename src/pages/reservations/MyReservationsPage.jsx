@@ -97,13 +97,13 @@ const MyReservationsPage = () => {
           <option value="EXPIRED">{t("reservations.statusExpired")}</option>
         </select>
       </div>
-      <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+      <p className="text-sm text-gray-600 dark:text-slate-400 mb-4">
         {t("reservations.count", { count: filtered.length })}
         {totalPages > 1 && ` · ${t("reservations.pageOf", { current: page + 1, total: totalPages })}`}
       </p>
 
       {paginated.length === 0 ? (
-        <p className="text-gray-500 dark:text-slate-400 text-center py-12">{t("reservations.noResults")}</p>
+        <p className="text-gray-600 dark:text-slate-400 text-center py-12">{t("reservations.noResults")}</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {paginated.map((reservation) => (
@@ -116,11 +116,11 @@ const MyReservationsPage = () => {
                     {statusLabel[reservation.status]?.text}
                   </span>
                   {reservation.status === "PENDING" && (
-                    <span className="text-xs text-gray-500 dark:text-slate-400">
+                    <span className="text-xs text-gray-600 dark:text-slate-400">
                       {t("reservations.position", { position: reservation.queuePosition })}
                     </span>
                   )}
-                  <span className="text-xs text-gray-500 dark:text-slate-400">
+                  <span className="text-xs text-gray-600 dark:text-slate-400">
                     {new Date(reservation.reservationDate).toLocaleDateString(i18n.language)}
                   </span>
                   {reservation.expiryDate && (
@@ -132,7 +132,7 @@ const MyReservationsPage = () => {
               </div>
               {reservation.status === "PENDING" && (
                 <button onClick={() => handleCancel(reservation.id)}
-                  className="text-sm border border-red-400 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 px-4 py-2 rounded-xl transition-colors flex-shrink-0">
+                  className="text-sm border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 px-4 py-2 rounded-xl transition-colors flex-shrink-0">
                   {t("reservations.cancelButton")}
                 </button>
               )}

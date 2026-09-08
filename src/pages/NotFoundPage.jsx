@@ -7,7 +7,7 @@ const NotFoundPage = () => {
     <div className="flex flex-col items-center justify-center text-center py-20">
       <p className="text-6xl mb-2" aria-hidden="true">📚</p>
       <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-2">{t("notFound.title")}</h1>
-      <p className="text-gray-500 dark:text-slate-400 mb-8 max-w-sm">
+      <p className="text-gray-600 dark:text-slate-400 mb-8 max-w-sm">
         {t("notFound.message")}
       </p>
       <Link to="/"

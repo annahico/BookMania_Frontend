@@ -23,7 +23,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
       {pageItems.map((item, idx) =>
         item === "..." ? (
-          <span key={`dots-${idx}`} className="px-2 text-gray-400 dark:text-slate-500" aria-hidden="true">...</span>
+          <span key={`dots-${idx}`} className="px-2 text-gray-600 dark:text-slate-300" aria-hidden="true">...</span>
         ) : (
           <button key={item} onClick={() => onPageChange(item)}
             aria-label={t("pagination.page", { page: item + 1 })}

@@ -86,7 +86,7 @@ const BookDetailPage = () => {
   if (error || !book) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-red-500 dark:text-red-400">{error || t("books.detail.notFound")}</p>
+        <p className="text-red-700 dark:text-red-400">{error || t("books.detail.notFound")}</p>
       </div>
     );
   }
@@ -151,17 +151,17 @@ const BookDetailPage = () => {
             <div>
               <p className="text-pink-700 dark:text-pink-400 font-medium">{t("books.detail.availability")}</p>
               {book.availableCopies > 0 ? (
-                <p className="text-green-600 dark:text-green-400 font-medium">
+                <p className="text-green-700 dark:text-green-400 font-medium">
                   {t("books.detail.copiesAvailable", { count: book.availableCopies })}
                 </p>
               ) : (
-                <p className="text-red-500 dark:text-red-400 font-medium">{t("books.unavailable")}</p>
+                <p className="text-red-700 dark:text-red-400 font-medium">{t("books.unavailable")}</p>
               )}
             </div>
           </div>
 
           {!isAuthenticated() ? (
-            <p className="text-sm text-gray-500 dark:text-slate-400">
+            <p className="text-sm text-gray-600 dark:text-slate-400">
               <button onClick={() => navigate("/login")} className="text-pink-700 dark:text-pink-400 hover:underline">
                 {t("books.detail.loginLink")}
               </button>{" "}
