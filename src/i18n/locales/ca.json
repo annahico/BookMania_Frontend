@@ -34,6 +34,21 @@
     "title": "Pàgina no trobada",
     "message": "La pàgina que busques no existeix o s'ha mogut a un altre lloc."
   },
+  "account": {
+    "title": "El meu compte",
+    "subtitle": "Gestiona els ajustos del teu compte, {{name}}.",
+    "password": {
+      "title": "Canvia la contrasenya",
+      "currentLabel": "Contrasenya actual",
+      "newLabel": "Nova contrasenya",
+      "confirmLabel": "Confirma la nova contrasenya",
+      "submit": "Desa els canvis",
+      "submitting": "Desant...",
+      "success": "Contrasenya actualitzada correctament.",
+      "mismatch": "Les contrasenyes noves no coincideixen.",
+      "error": "No s'ha pogut canviar la contrasenya."
+    }
+  },
   "auth": {
     "brand": "📚 BookMania",
     "login": {

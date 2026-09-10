@@ -12,6 +12,7 @@ const BookDetailPage = lazy(() => import("../pages/books/BookDetailPage"));
 const MyLoansPage = lazy(() => import("../pages/loans/MyLoansPage"));
 const MyFinesPage = lazy(() => import("../pages/fines/MyFinesPage"));
 const MyReservationsPage = lazy(() => import("../pages/reservations/MyReservationsPage"));
+const AccountPage = lazy(() => import("../pages/account/AccountPage"));
 const AdminPage = lazy(() => import("../pages/admin/AdminPage"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 
@@ -62,6 +63,7 @@ const AppRouter = () => {
               <Route path="/my-loans" element={<PrivateRoute><MyLoansPage /></PrivateRoute>} />
               <Route path="/my-fines" element={<PrivateRoute><MyFinesPage /></PrivateRoute>} />
               <Route path="/my-reservations" element={<PrivateRoute><MyReservationsPage /></PrivateRoute>} />
+              <Route path="/account" element={<PrivateRoute><AccountPage /></PrivateRoute>} />
               <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>

@@ -34,6 +34,21 @@
     "title": "Page not found",
     "message": "The page you're looking for doesn't exist or has moved."
   },
+  "account": {
+    "title": "My account",
+    "subtitle": "Manage your account settings, {{name}}.",
+    "password": {
+      "title": "Change password",
+      "currentLabel": "Current password",
+      "newLabel": "New password",
+      "confirmLabel": "Confirm new password",
+      "submit": "Save changes",
+      "submitting": "Saving...",
+      "success": "Password updated successfully.",
+      "mismatch": "The new passwords don't match.",
+      "error": "Could not change the password."
+    }
+  },
   "auth": {
     "brand": "📚 BookMania",
     "login": {
