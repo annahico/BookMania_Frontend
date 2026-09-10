@@ -34,6 +34,21 @@
     "title": "Página no encontrada",
     "message": "La página que buscas no existe o se ha movido a otro sitio."
   },
+  "account": {
+    "title": "Mi cuenta",
+    "subtitle": "Gestiona los ajustes de tu cuenta, {{name}}.",
+    "password": {
+      "title": "Cambiar contraseña",
+      "currentLabel": "Contraseña actual",
+      "newLabel": "Nueva contraseña",
+      "confirmLabel": "Confirmar nueva contraseña",
+      "submit": "Guardar cambios",
+      "submitting": "Guardando...",
+      "success": "Contraseña actualizada correctamente.",
+      "mismatch": "Las contraseñas nuevas no coinciden.",
+      "error": "No se pudo cambiar la contraseña."
+    }
+  },
   "auth": {
     "brand": "📚 BookMania",
     "login": {

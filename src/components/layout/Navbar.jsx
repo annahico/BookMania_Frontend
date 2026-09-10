@@ -116,14 +116,14 @@ const Navbar = () => {
               className="text-pink-50 hover:text-white p-1.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-pink-700" />
             {isAuthenticated() ? (
               <>
-                <span className="text-sm text-pink-50">
+                <Link to="/account" className="text-sm text-pink-50 hover:text-white hover:underline transition-colors">
                   {t("nav.greeting", { name: user?.name })}
                   {isAdmin() && (
                     <span className="ml-2 bg-pink-900 dark:bg-pink-800 text-white text-xs px-2 py-0.5 rounded-full font-medium">
                       {t("nav.adminBadge")}
                     </span>
                   )}
-                </span>
+                </Link>
                 <button onClick={handleLogout}
                   className="text-sm bg-white dark:bg-slate-800 text-pink-700 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-slate-700 font-medium px-3 py-1.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-pink-700">
                   {t("nav.logout")}
@@ -194,12 +194,13 @@ const Navbar = () => {
             <div className="pt-2 border-t border-pink-200 dark:border-slate-700">
               {isAuthenticated() ? (
                 <>
-                  <p className="py-1 text-sm text-gray-700 dark:text-slate-200">
+                  <Link to="/account" onClick={() => setMenuOpen(false)}
+                    className="block py-1 text-sm text-gray-700 dark:text-slate-200 hover:text-gray-900 dark:hover:text-white transition-colors">
                     {user?.name}
                     {isAdmin() && (
                       <span className="ml-2 bg-pink-900 dark:bg-pink-800 text-white text-xs px-2 py-0.5 rounded-full">{t("nav.adminBadge")}</span>
                     )}
-                  </p>
+                  </Link>
                   <button onClick={handleLogout}
                     className="block py-2 text-sm text-gray-900 dark:text-white font-medium hover:text-gray-700 dark:hover:text-slate-300 transition-colors">
                     {t("nav.logout")}
