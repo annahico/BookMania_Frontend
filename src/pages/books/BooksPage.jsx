@@ -46,7 +46,9 @@ const BooksPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const PAGE_SIZE = 15;
+  // 21 = 3x7 or 7x3, so every breakpoint below can use a column count that
+  // divides it evenly (1, 3, 7) - the last row is always full, never ragged.
+  const PAGE_SIZE = 21;
 
   // Only the very first load should show the full-page skeleton; a search
   // or page change while books are already on screen shouldn't blank the
@@ -105,8 +107,8 @@ const BooksPage = () => {
     return (
       <div>
         <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-6">{t("books.title")}</h1>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-6" aria-hidden="true">
-          {Array.from({ length: 10 }).map((_, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-7 gap-6" aria-hidden="true">
+          {Array.from({ length: 21 }).map((_, i) => (
             <div key={i} className="animate-pulse">
               <div className="bg-pink-100 dark:bg-slate-800 rounded-xl aspect-[2/3] mb-3" />
               <div className="bg-pink-100 dark:bg-slate-800 rounded h-3 mb-1.5" />
@@ -154,7 +156,7 @@ const BooksPage = () => {
       {books.length === 0 ? (
         <p className="text-gray-600 dark:text-slate-400 text-center py-12">{t("books.noResults")}</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-7 gap-6">
           {books.map((book) => (
             <Link key={book.id} to={`/books/${book.id}`} className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-600 focus-visible:ring-offset-2">
               <BookCover isbn={book.isbn} coverUrl={book.coverUrl} />
