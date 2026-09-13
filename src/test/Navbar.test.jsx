@@ -27,13 +27,13 @@ describe("Navbar", () => {
     const user = userEvent.setup();
     renderNavbar();
 
-    expect(screen.getAllByText("Catálogo")[0]).toBeInTheDocument();
+    expect(screen.getAllByText("Iniciar sesión")[0]).toBeInTheDocument();
 
     const [languageSelect] = screen.getAllByLabelText("Idioma");
     await user.selectOptions(languageSelect, "en");
 
-    expect(screen.getAllByText("Catalog")[0]).toBeInTheDocument();
-    expect(screen.queryByText("Catálogo")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Log in")[0]).toBeInTheDocument();
+    expect(screen.queryByText("Iniciar sesión")).not.toBeInTheDocument();
   });
 
   test("el interruptor de tema alterna la clase dark en <html>", async () => {
