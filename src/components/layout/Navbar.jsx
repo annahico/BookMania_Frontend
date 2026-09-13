@@ -95,9 +95,6 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
-            <NavLink to="/" end className={navLinkClass}>
-              {t("nav.catalog")}
-            </NavLink>
             {isAuthenticated() && (
               <>
                 <NavLink to="/my-loans" className={navLinkClass}>
@@ -175,9 +172,6 @@ const Navbar = () => {
 
         {menuOpen && (
           <div className="md:hidden bg-pink-300 dark:bg-slate-800 border-t border-pink-200 dark:border-slate-700 px-4 pb-4 space-y-1">
-            <NavLink to="/" end onClick={() => setMenuOpen(false)} className={mobileNavLinkClass}>
-              {t("nav.catalog")}
-            </NavLink>
             {isAuthenticated() && (
               <>
                 <NavLink to="/my-loans" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass}>
