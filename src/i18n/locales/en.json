@@ -81,6 +81,7 @@
   },
   "books": {
     "title": "Book catalog",
+    "loadingCatalog": "Loading catalog... this can take a few seconds if the server was asleep",
     "searchPlaceholder": "Search by title or author...",
     "searchLabel": "Search by title or author",
     "categoryLabel": "Filter by category",

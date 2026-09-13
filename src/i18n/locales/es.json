@@ -81,6 +81,7 @@
   },
   "books": {
     "title": "Catálogo de libros",
+    "loadingCatalog": "Cargando catálogo... puede tardar unos segundos si el servidor estaba inactivo",
     "searchPlaceholder": "Buscar por título o autor...",
     "searchLabel": "Buscar por título o autor",
     "categoryLabel": "Filtrar por categoría",
