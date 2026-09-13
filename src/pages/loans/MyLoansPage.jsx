@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import loanService from "../../api/loanService";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import Pagination from "../../components/common/Pagination";
+import LoadingNotice from "../../components/common/LoadingNotice";
 import useToast from "../../hooks/useToast";
 
 const PAGE_SIZE = 15;
@@ -76,7 +77,8 @@ const MyLoansPage = () => {
   if (loading) {
     return (
       <div>
-        <div className="h-8 bg-pink-100 dark:bg-slate-800 rounded w-48 mb-6 animate-pulse" />
+        <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-3">{t("loans.title")}</h1>
+        <LoadingNotice className="mb-6" />
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="animate-pulse bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-xl p-4">

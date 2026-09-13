@@ -5,6 +5,7 @@ import bookService from "../../api/bookService";
 import loanService from "../../api/loanService";
 import reservationService from "../../api/reservationService";
 import { getBookCover } from "../../utils/bookCover";
+import LoadingNotice from "../../components/common/LoadingNotice";
 import useAuth from "../../hooks/useAuth";
 import useToast from "../../hooks/useToast";
 
@@ -78,7 +79,7 @@ const BookDetailPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-pink-700 dark:text-pink-400">{t("books.detail.loading")}</p>
+        <LoadingNotice message={t("books.detail.loading")} />
       </div>
     );
   }

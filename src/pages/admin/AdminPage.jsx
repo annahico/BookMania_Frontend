@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import adminService from "../../api/adminService";
 import bookService from "../../api/bookService";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import LoadingNotice from "../../components/common/LoadingNotice";
 import useToast from "../../hooks/useToast";
 import AdminLoansTab from "./tabs/AdminLoansTab";
 import AdminFinesTab from "./tabs/AdminFinesTab";
@@ -58,7 +59,7 @@ const AdminPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-pink-700 dark:text-pink-400">{t("admin.loading")}</p>
+        <LoadingNotice message={t("admin.loading")} />
       </div>
     );
   }

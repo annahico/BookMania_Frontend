@@ -5,6 +5,7 @@ import bookService from "../../api/bookService";
 import { getBookCover } from "../../utils/bookCover";
 import useToast from "../../hooks/useToast";
 import Pagination from "../../components/common/Pagination";
+import LoadingNotice from "../../components/common/LoadingNotice";
 
 const BookCover = ({ isbn, coverUrl }) => {
   const { t } = useTranslation();
@@ -106,7 +107,8 @@ const BooksPage = () => {
   if (loading && !hasLoadedOnce.current) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-6">{t("books.title")}</h1>
+        <h1 className="text-2xl font-bold text-pink-700 dark:text-pink-400 mb-3">{t("books.title")}</h1>
+        <LoadingNotice message={t("books.loadingCatalog")} className="mb-6" />
         <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-7 gap-6" aria-hidden="true">
           {Array.from({ length: 21 }).map((_, i) => (
             <div key={i} className="animate-pulse">

@@ -81,6 +81,7 @@
   },
   "books": {
     "title": "Catàleg de llibres",
+    "loadingCatalog": "Carregant el catàleg... pot trigar uns segons si el servidor estava inactiu",
     "searchPlaceholder": "Cerca per títol o autor...",
     "searchLabel": "Cerca per títol o autor",
     "categoryLabel": "Filtra per categoria",
