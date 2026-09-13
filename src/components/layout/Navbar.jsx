@@ -47,13 +47,23 @@ const ThemeToggle = ({ className }) => {
   );
 };
 
-// Center nav links: the current page reads like an actual page title (bigger,
-// bold, solid white, underlined) while the rest stay as small, quiet links —
-// so it's obvious at a glance where you are, not just a row of equal links.
+// Center nav links: the active page gets the same rounded pill treatment as
+// the admin/greeting badges elsewhere in this navbar (and the category tags
+// on the books grid) instead of growing text and underlining it — one soft,
+// rounded language across the whole app rather than a one-off style just
+// for this link.
 const navLinkClass = ({ isActive }) =>
-  `transition-colors pb-0.5 border-b-2 ${isActive
-    ? "text-lg font-bold text-white tracking-wide border-white"
-    : "text-sm font-medium text-pink-100 border-transparent hover:text-white hover:border-pink-300 dark:hover:border-pink-700"}`;
+  `text-sm font-medium px-3 py-1.5 rounded-full transition-colors ${isActive
+    ? "bg-pink-900 dark:bg-pink-800 text-white"
+    : "text-pink-100 hover:text-white hover:bg-pink-600/40 dark:hover:bg-pink-900/40"}`;
+
+// Mobile menu mirrors the same idea with a block-level pill (rounded-lg,
+// matching the buttons elsewhere) since these links stack vertically instead
+// of sitting in a row.
+const mobileNavLinkClass = ({ isActive }) =>
+  `block px-3 py-2 rounded-lg text-sm transition-colors ${isActive
+    ? "bg-pink-100 dark:bg-slate-700 text-gray-900 dark:text-white font-semibold"
+    : "text-gray-700 dark:text-slate-200 hover:text-gray-900 dark:hover:text-white"}`;
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -165,31 +175,26 @@ const Navbar = () => {
 
         {menuOpen && (
           <div className="md:hidden bg-pink-300 dark:bg-slate-800 border-t border-pink-200 dark:border-slate-700 px-4 pb-4 space-y-1">
-            <Link to="/" onClick={() => setMenuOpen(false)}
-              className="block py-2 text-sm text-gray-700 dark:text-slate-200 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <NavLink to="/" end onClick={() => setMenuOpen(false)} className={mobileNavLinkClass}>
               {t("nav.catalog")}
-            </Link>
+            </NavLink>
             {isAuthenticated() && (
               <>
-                <Link to="/my-loans" onClick={() => setMenuOpen(false)}
-                  className="block py-2 text-sm text-gray-700 dark:text-slate-200 hover:text-gray-900 dark:hover:text-white transition-colors">
+                <NavLink to="/my-loans" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass}>
                   {t("nav.myLoans")}
-                </Link>
-                <Link to="/my-reservations" onClick={() => setMenuOpen(false)}
-                  className="block py-2 text-sm text-gray-700 dark:text-slate-200 hover:text-gray-900 dark:hover:text-white transition-colors">
+                </NavLink>
+                <NavLink to="/my-reservations" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass}>
                   {t("nav.myReservations")}
-                </Link>
-                <Link to="/my-fines" onClick={() => setMenuOpen(false)}
-                  className="block py-2 text-sm text-gray-700 dark:text-slate-200 hover:text-gray-900 dark:hover:text-white transition-colors">
+                </NavLink>
+                <NavLink to="/my-fines" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass}>
                   {t("nav.myFines")}
-                </Link>
+                </NavLink>
               </>
             )}
             {isAdmin() && (
-              <Link to="/admin" onClick={() => setMenuOpen(false)}
-                className="block py-2 text-sm text-gray-700 dark:text-slate-200 hover:text-gray-900 dark:hover:text-white transition-colors">
+              <NavLink to="/admin" onClick={() => setMenuOpen(false)} className={mobileNavLinkClass}>
                 {t("nav.admin")}
-              </Link>
+              </NavLink>
             )}
             <div className="pt-2 border-t border-pink-200 dark:border-slate-700">
               {isAuthenticated() ? (
